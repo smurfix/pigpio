@@ -22,10 +22,10 @@ GPIO=25
 def STRCMP(r, s):
 
     if type(r) == type(""):
-        r = bytearray(r, 'latin-1')
+        r = bytearray(r, 'utf-8')
 
     if type(s) == type(""):
-        s = bytearray(s, 'latin-1')
+        s = bytearray(s, 'utf-8')
 
     if r != s:
         print(r, s)

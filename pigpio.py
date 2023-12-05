@@ -968,7 +968,7 @@ def tickDiff(t1, t2):
 # 3 != 2.7.8 != 2.7.3
 
 def _b(x):
-    return x.encode('latin-1')
+    return x.encode('utf-8')
 
 def _str(x):
     return x
