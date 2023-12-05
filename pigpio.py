@@ -967,19 +967,11 @@ def tickDiff(t1, t2):
 # between various Python versions
 # 3 != 2.7.8 != 2.7.3
 
-if sys.hexversion < 0x03000000:
-    def _b(x):
-        return x
-else:
-    def _b(x):
-        return x.encode('latin-1')
+def _b(x):
+    return x.encode('latin-1')
 
-if sys.hexversion < 0x02070800:
-    def _str(x):
-        return buffer(x)
-else:
-    def _str(x):
-        return x
+def _str(x):
+    return x
 
 def u2i(uint32):
     """

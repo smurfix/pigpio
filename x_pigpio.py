@@ -21,13 +21,11 @@ GPIO=25
 
 def STRCMP(r, s):
 
-    if sys.hexversion > 0x03000000:
+    if type(r) == type(""):
+        r = bytearray(r, 'latin-1')
 
-        if type(r) == type(""):
-            r = bytearray(r, 'latin-1')
-
-        if type(s) == type(""):
-            s = bytearray(s, 'latin-1')
+    if type(s) == type(""):
+        s = bytearray(s, 'latin-1')
 
     if r != s:
         print(r, s)
