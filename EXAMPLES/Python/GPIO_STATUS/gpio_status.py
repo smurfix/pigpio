@@ -30,7 +30,7 @@ atexit.register(cleanup)
 cb = []
 
 for g in range(GPIOS):
-   cb.append(pi.callback(g, pigpio.EITHER_EDGE))
+   cb.append(pi.callback(g, pigpio.EDGE.EITHER))
 
 # disable gpio 28 as the PCM clock is swamping the system
 

@@ -34,11 +34,11 @@ class ranger:
       self._trig_mode = pi.get_mode(self._trig)
       self._echo_mode = pi.get_mode(self._echo)
 
-      pi.set_mode(self._trig, pigpio.OUTPUT)
-      pi.set_mode(self._echo, pigpio.INPUT)
+      pi.set_mode(self._trig, pigpio.MODE.OUTPUT)
+      pi.set_mode(self._echo, pigpio.MODE.INPUT)
 
-      self._cb = pi.callback(self._trig, pigpio.EITHER_EDGE, self._cbf)
-      self._cb = pi.callback(self._echo, pigpio.EITHER_EDGE, self._cbf)
+      self._cb = pi.callback(self._trig, pigpio.EDGE.EITHER, self._cbf)
+      self._cb = pi.callback(self._echo, pigpio.EDGE.EITHER, self._cbf)
 
       self._inited = True
 

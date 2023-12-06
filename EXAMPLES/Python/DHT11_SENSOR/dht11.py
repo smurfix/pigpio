@@ -40,17 +40,17 @@ class DHT11(object):
         Clears the internal gpio pull-up/down resistor.
         Kills any watchdogs.
         """
-        self.pi.set_pull_up_down(self.gpio, pigpio.PUD_OFF)
+        self.pi.set_pull_up_down(self.gpio, pigpio.PUD.OFF)
         self.pi.set_watchdog(self.gpio, 0)
         self.register_callbacks()
 
     def register_callbacks(self):
         """
-        Monitors RISING_EDGE changes using callback.
+        Monitors EDGE.RISING changes using callback.
         """
         self.either_edge_cb = self.pi.callback(
             self.gpio,
-            pigpio.EITHER_EDGE,
+            pigpio.EDGE.EITHER,
             self.either_edge_callback
         )
 
@@ -60,9 +60,9 @@ class DHT11(object):
         Accumulate the 40 data bits from the dht11 sensor.
         """
         level_handlers = {
-            pigpio.FALLING_EDGE: self._edge_FALL,
-            pigpio.RISING_EDGE: self._edge_RISE,
-            pigpio.EITHER_EDGE: self._edge_EITHER
+            pigpio.EDGE.FALLING: self._edge_FALL,
+            pigpio.EDGE.RISING: self._edge_RISE,
+            pigpio.EDGE.EITHER: self._edge_EITHER
         }
         handler = level_handlers[level]
         diff = pigpio.tickDiff(self.high_tick, tick)
@@ -121,7 +121,7 @@ class DHT11(object):
         """
         self.pi.write(self.gpio, pigpio.LOW)
         time.sleep(0.017) # 17 ms
-        self.pi.set_mode(self.gpio, pigpio.INPUT)
+        self.pi.set_mode(self.gpio, pigpio.MODE.INPUT)
         self.pi.set_watchdog(self.gpio, 200)
         time.sleep(0.2)
 

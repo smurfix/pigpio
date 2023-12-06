@@ -55,15 +55,15 @@ def t1():
 
     print("Mode/PUD/read/write tests.")
 
-    pi.set_mode(GPIO, pigpio.INPUT)
+    pi.set_mode(GPIO, pigpio.MODE.INPUT)
     v = pi.get_mode(GPIO)
     CHECK(1, 1, v, 0, 0, "set mode, get mode")
 
-    pi.set_pull_up_down(GPIO, pigpio.PUD_UP)
+    pi.set_pull_up_down(GPIO, pigpio.PUD.UP)
     v = pi.read(GPIO)
     CHECK(1, 2, v, 1, 0, "set pull up down, read")
 
-    pi.set_pull_up_down(GPIO, pigpio.PUD_DOWN)
+    pi.set_pull_up_down(GPIO, pigpio.PUD.DOWN)
     v = pi.read(GPIO)
     CHECK(1, 3, v, 0, 0, "set pull up down, read")
 
@@ -95,7 +95,7 @@ def t2():
     f = pi.get_PWM_frequency(GPIO)
     CHECK(2, 1, f, 10, 0, "set PWM range, set/get PWM frequency")
 
-    t2cb = pi.callback(GPIO, pigpio.EITHER_EDGE, t2cbf)
+    t2cb = pi.callback(GPIO, pigpio.EDGE.EITHER, t2cbf)
 
     pi.set_PWM_dutycycle(GPIO, 0)
     dc = pi.get_PWM_dutycycle(GPIO)
@@ -188,7 +188,7 @@ def t3():
 
     print("PWM/Servo pulse accuracy tests.")
 
-    t3cb = pi.callback(GPIO, pigpio.EITHER_EDGE, t3cbf)
+    t3cb = pi.callback(GPIO, pigpio.EDGE.EITHER, t3cbf)
 
     t = 0
     for x in pw:
@@ -340,9 +340,9 @@ To the lascivious pleasing of a lute.
 
     print("Waveforms & bit bang serial read/write tests.")
 
-    t5cb = pi.callback(GPIO, pigpio.FALLING_EDGE, t5cbf)
+    t5cb = pi.callback(GPIO, pigpio.EDGE.FALLING, t5cbf)
 
-    pi.set_mode(GPIO, pigpio.OUTPUT)
+    pi.set_mode(GPIO, pigpio.MODE.OUTPUT)
 
     e = pi.wave_clear()
     CHECK(5, 1, e, 0, 0, "callback, set mode, wave clear")
@@ -482,7 +482,7 @@ To the lascivious pleasing of a lute.
     CHECK(5, 33, e, 0, 0, "wave delete")
 
     # wave_create_and_pad tests 
-    t5cb = pi.callback(GPIO, pigpio.FALLING_EDGE, t5cbf)
+    t5cb = pi.callback(GPIO, pigpio.EDGE.FALLING, t5cbf)
     pi.wave_clear()
 
     pi.wave_add_generic([pigpio.pulse(1<<GPIO, 0,  10000),
@@ -546,7 +546,7 @@ def t6():
 
     tp = 0
 
-    t6cb = pi.callback(GPIO, pigpio.EITHER_EDGE, t6cbf)
+    t6cb = pi.callback(GPIO, pigpio.EDGE.EITHER, t6cbf)
 
     for t in range(5):
         time.sleep(0.1)
@@ -575,7 +575,7 @@ def t7():
     print("Watchdog tests.")
 
     # type of edge shouldn't matter for watchdogs
-    t7cb = pi.callback(GPIO, pigpio.FALLING_EDGE, t7cbf)
+    t7cb = pi.callback(GPIO, pigpio.EDGE.FALLING, t7cbf)
 
     pi.set_watchdog(GPIO, 50) # 50 ms, 20 per second
     time.sleep(0.5)
@@ -627,7 +627,7 @@ def t8():
     pigpio.exceptions = False
     v = pi.clear_bank_2(0xffffff)
     pigpio.exceptions = True
-    CHECK(8, 7, v, pigpio.PI_SOME_PERMITTED, 0, "clear bank 2")
+    CHECK(8, 7, v, pigpio.ERR.SOME_PERMITTED, 0, "clear bank 2")
 
     v = pi.set_bank_2(0)
     CHECK(8, 8, v, 0, 0, "set bank 2")
@@ -635,13 +635,13 @@ def t8():
     pigpio.exceptions = False
     v = pi.set_bank_2(0xffffff)
     pigpio.exceptions = True
-    CHECK(8, 9, v, pigpio.PI_SOME_PERMITTED, 0, "set bank 2")
+    CHECK(8, 9, v, pigpio.ERR.SOME_PERMITTED, 0, "set bank 2")
 
 def t9waitNotHalted(s):
     for check in range(10):
         time.sleep(0.1)
         e, p = pi.script_status(s)
-        if e != pigpio.PI_SCRIPT_HALTED:
+        if e != pigpio.ERR.SCRIPT.HALTED:
             return
 
 def t9():
@@ -673,7 +673,7 @@ def t9():
     # Ensure the script has finished initing.
     while True:
         e, p = pi.script_status(s)
-        if e != pigpio.PI_SCRIPT_INITING:
+        if e != pigpio.ERR.SCRIPT.INITING:
             break
         time.sleep(0.1)
 
@@ -684,7 +684,7 @@ def t9():
 
     while True:
         e, p = pi.script_status(s)
-        if e != pigpio.PI_SCRIPT_RUNNING:
+        if e != pigpio.ERR.SCRIPT.RUNNING:
             break
         time.sleep(0.1)
     time.sleep(0.2)
@@ -698,7 +698,7 @@ def t9():
 
     while True:
         e, p = pi.script_status(s)
-        if e != pigpio.PI_SCRIPT_RUNNING:
+        if e != pigpio.ERR.SCRIPT.RUNNING:
             break
         time.sleep(0.1)
     time.sleep(0.2)
@@ -712,7 +712,7 @@ def t9():
 
     while True:
         e, p = pi.script_status(s)
-        if e != pigpio.PI_SCRIPT_RUNNING:
+        if e != pigpio.ERR.SCRIPT.RUNNING:
             break
         if p[9] < 1900:
             pi.stop_script(s)
@@ -901,7 +901,7 @@ def td():
 
     tdcb = pi.callback(GPIO)
 
-    pi.set_mode(GPIO, pigpio.OUTPUT)
+    pi.set_mode(GPIO, pigpio.MODE.OUTPUT)
 
     pi.write(GPIO, pigpio.LOW)
 

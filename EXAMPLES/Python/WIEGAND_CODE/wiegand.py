@@ -53,14 +53,14 @@ class decoder:
 
       self.in_code = False
 
-      self.pi.set_mode(gpio_0, pigpio.INPUT)
-      self.pi.set_mode(gpio_1, pigpio.INPUT)
+      self.pi.set_mode(gpio_0, pigpio.MODE.INPUT)
+      self.pi.set_mode(gpio_1, pigpio.MODE.INPUT)
 
-      self.pi.set_pull_up_down(gpio_0, pigpio.PUD_UP)
-      self.pi.set_pull_up_down(gpio_1, pigpio.PUD_UP)
+      self.pi.set_pull_up_down(gpio_0, pigpio.PUD.UP)
+      self.pi.set_pull_up_down(gpio_1, pigpio.PUD.UP)
 
-      self.cb_0 = self.pi.callback(gpio_0, pigpio.FALLING_EDGE, self._cb)
-      self.cb_1 = self.pi.callback(gpio_1, pigpio.FALLING_EDGE, self._cb)
+      self.cb_0 = self.pi.callback(gpio_0, pigpio.EDGE.FALLING, self._cb)
+      self.cb_1 = self.pi.callback(gpio_1, pigpio.EDGE.FALLING, self._cb)
 
    def _cb(self, gpio, level, tick):
 

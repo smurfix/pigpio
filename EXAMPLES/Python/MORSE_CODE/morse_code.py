@@ -56,7 +56,7 @@ def transmit_string(pi, gpio, str):
 
 pi = pigpio.pi()
 
-pi.set_mode(GPIO, pigpio.OUTPUT)
+pi.set_mode(GPIO, pigpio.MODE.OUTPUT)
 
 transmit_string(pi, GPIO, "Now is the winter of our discontent")
 

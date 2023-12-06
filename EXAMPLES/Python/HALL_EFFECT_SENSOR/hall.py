@@ -19,8 +19,8 @@ HALL=14
 
 pi = pigpio.pi() # connect to local Pi
 
-pi.set_mode(HALL, pigpio.INPUT)
-pi.set_pull_up_down(HALL, pigpio.PUD_UP)
+pi.set_mode(HALL, pigpio.MODE.INPUT)
+pi.set_pull_up_down(HALL, pigpio.PUD.UP)
 
 start = time.time()
 

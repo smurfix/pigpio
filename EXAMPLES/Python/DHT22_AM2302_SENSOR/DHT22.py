@@ -80,11 +80,11 @@ class sensor:
       self.high_tick = 0
       self.bit = 40
 
-      pi.set_pull_up_down(gpio, pigpio.PUD_OFF)
+      pi.set_pull_up_down(gpio, pigpio.PUD.OFF)
 
       pi.set_watchdog(gpio, 0)  # Kill any watchdogs.
 
-      self.cb = pi.callback(gpio, pigpio.EITHER_EDGE, self._cb)
+      self.cb = pi.callback(gpio, pigpio.EDGE.EITHER, self._cb)
 
    def _cb(self, gpio, level, tick):
       """
@@ -229,7 +229,7 @@ class sensor:
 
          self.pi.write(self.gpio, pigpio.LOW)
          time.sleep(0.017)  # 17 ms
-         self.pi.set_mode(self.gpio, pigpio.INPUT)
+         self.pi.set_mode(self.gpio, pigpio.MODE.INPUT)
          self.pi.set_watchdog(self.gpio, 200)
 
    def cancel(self):

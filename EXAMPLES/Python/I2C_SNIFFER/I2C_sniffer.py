@@ -54,11 +54,11 @@ class sniffer:
       self.transact = ""
 
       if set_as_inputs:
-         self.pi.set_mode(SCL, pigpio.INPUT)
-         self.pi.set_mode(SDA, pigpio.INPUT)
+         self.pi.set_mode(SCL, pigpio.MODE.INPUT)
+         self.pi.set_mode(SDA, pigpio.MODE.INPUT)
 
-      self.cbA = self.pi.callback(SCL, pigpio.EITHER_EDGE, self._cb)
-      self.cbB = self.pi.callback(SDA, pigpio.EITHER_EDGE, self._cb)
+      self.cbA = self.pi.callback(SCL, pigpio.EDGE.EITHER, self._cb)
+      self.cbB = self.pi.callback(SDA, pigpio.EDGE.EITHER, self._cb)
 
    def _parse(self, SCL, SDA):
       """

@@ -66,7 +66,7 @@ class tx():
 
       pi.wave_add_new()
 
-      pi.set_mode(txgpio, pigpio.OUTPUT)
+      pi.set_mode(txgpio, pigpio.MODE.OUTPUT)
 
 
    def _nibble(self, nibble):
@@ -184,9 +184,9 @@ class rx():
       self.message_len = 0
       self.byte = 0
 
-      pi.set_mode(rxgpio, pigpio.INPUT)
+      pi.set_mode(rxgpio, pigpio.MODE.INPUT)
 
-      self.cb = pi.callback(rxgpio, pigpio.EITHER_EDGE, self._cb)
+      self.cb = pi.callback(rxgpio, pigpio.EDGE.EITHER, self._cb)
 
    def _calc_crc(self):
 

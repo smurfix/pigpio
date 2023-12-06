@@ -53,9 +53,9 @@ class hasher:
 
       self.in_code = False
 
-      pi.set_mode(gpio, pigpio.INPUT)
+      pi.set_mode(gpio, pigpio.MODE.INPUT)
 
-      self.cb = pi.callback(gpio, pigpio.EITHER_EDGE, self._cb)
+      self.cb = pi.callback(gpio, pigpio.EDGE.EITHER, self._cb)
 
    def _hash(self, old_val, new_val):
 

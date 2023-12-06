@@ -73,9 +73,9 @@ class SENTReader:
         self.numberFrames = 0
         self.SampleStopped = False
 
-        self.pi.set_mode(gpio, pigpio.INPUT)
+        self.pi.set_mode(gpio, pigpio.MODE.INPUT)
 
-        #self._cb = pi.callback(gpio, pigpio.EITHER_EDGE, self._cbf)
+        #self._cb = pi.callback(gpio, pigpio.EDGE.EITHER, self._cbf)
         #sleep enougth to start reading SENT
         #time.sleep(0.05)
 
@@ -96,7 +96,7 @@ class SENTReader:
      while True:
 
         self.SampleStopped = False
-        self._cb = self.pi.callback(self.gpio, pigpio.EITHER_EDGE, self._cbf)
+        self._cb = self.pi.callback(self.gpio, pigpio.EDGE.EITHER, self._cbf)
         # wait until sample stopped
         while self.SampleStopped == False:
             #do nothing
@@ -184,7 +184,7 @@ class SENTReader:
         # check that data1 = Data2 if they are not equal return fault = True
         # will check the CRC code for faults.  if fault, return = true
         # returns status, data1, data2, crc, fault
-        #self._cb = self.pi.callback(self.gpio, pigpio.EITHER_EDGE, self._cbf)
+        #self._cb = self.pi.callback(self.gpio, pigpio.EDGE.EITHER, self._cbf)
         #time.sleep(0.1)
         fault = False
         SentFrame = self.frame[:]

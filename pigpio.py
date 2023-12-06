@@ -225,7 +225,7 @@ bb_i2c_close              Closes GPIO for bit banging I2C
 
 bb_i2c_zip                Performs multiple bit banged I2C transactions
 
-I2C/SPI_SLAVE
+I2C/SPI.SLAVE
 
 bsc_xfer                  I2C/SPI as slave transfer
 bsc_i2c                   I2C as slave transfer
@@ -261,7 +261,7 @@ spi_read                  Reads bytes from a SPI device
 spi_write                 Writes bytes to a SPI device
 spi_xfer                  Transfers bytes with a SPI device
 
-SPI_BIT_BANG
+SPI.BIT_BANG
 
 bb_spi_open               Opens GPIO for bit banging SPI
 bb_spi_close              Closes GPIO for bit banging SPI
@@ -330,6 +330,7 @@ import time
 import threading
 import os
 import atexit
+from enum import IntEnum
 
 VERSION = "1.78"  # sync minor number to pigpio library version
 
@@ -349,76 +350,84 @@ TIMEOUT = 2
 
 # GPIO edges
 
-RISING_EDGE  = 0
-FALLING_EDGE = 1
-EITHER_EDGE  = 2
+class EDGE(IntEnum):
+    RISING  = 0
+    FALLING = 1
+    EITHER  = 2
 
 # GPIO modes
 
-INPUT  = 0
-OUTPUT = 1
-ALT0   = 4
-ALT1   = 5
-ALT2   = 6
-ALT3   = 7
-ALT4   = 3
-ALT5   = 2
+class MODE(IntEnum):
+    INPUT  = 0
+    OUTPUT = 1
+    ALT0   = 4
+    ALT1   = 5
+    ALT2   = 6
+    ALT3   = 7
+    ALT4   = 3
+    ALT5   = 2
 
 # GPIO Pull Up Down
 
-PUD_OFF  = 0
-PUD_DOWN = 1
-PUD_UP   = 2
+class PUD(IntEnum):
+    OFF  = 0
+    DOWN = 1
+    UP   = 2
 
 # script run status
 
-PI_SCRIPT_INITING=0
-PI_SCRIPT_HALTED =1
-PI_SCRIPT_RUNNING=2
-PI_SCRIPT_WAITING=3
-PI_SCRIPT_FAILED =4
+class PI_SCRIPT(IntEnum):
+    INITING=0
+    HALTED =1
+    RUNNING=2
+    WAITING=3
+    FAILED =4
 
 # notification flags
 
-NTFY_FLAGS_EVENT = (1 << 7)
-NTFY_FLAGS_ALIVE = (1 << 6)
-NTFY_FLAGS_WDOG  = (1 << 5)
-NTFY_FLAGS_GPIO  = 31
+class NTFY_FLAGS(IntEnum):
+    EVENT = (1 << 7)
+    ALIVE = (1 << 6)
+    WDOG  = (1 << 5)
+    GPIO  = 31
 
 # wave modes
 
-WAVE_MODE_ONE_SHOT     =0
-WAVE_MODE_REPEAT       =1
-WAVE_MODE_ONE_SHOT_SYNC=2
-WAVE_MODE_REPEAT_SYNC  =3
+class WAVE_MODE(IntEnum):
+    ONE_SHOT     =0
+    REPEAT       =1
+    ONE_SHOT_SYNC=2
+    REPEAT_SYNC  =3
 
 WAVE_NOT_FOUND = 9998 # Transmitted wave not found.
 NO_TX_WAVE     = 9999 # No wave being transmitted.
 
-FILE_READ=1
-FILE_WRITE=2
-FILE_RW=3
+class FILE(IntEnum):
+    READ=1
+    WRITE=2
+    RW=3
 
-FILE_APPEND=4
-FILE_CREATE=8
-FILE_TRUNC=16
+    APPEND=4
+    CREATE=8
+    TRUNC=16
 
-FROM_START=0
-FROM_CURRENT=1
-FROM_END=2
+    FROM_START=0
+    FROM_CURRENT=1
+    FROM_END=2
 
-SPI_MODE_0 = 0
-SPI_MODE_1 = 1
-SPI_MODE_2 = 2
-SPI_MODE_3 = 3
+class SPI(IntEnum):
+    MODE_0 = 0
+    MODE_1 = 1
+    MODE_2 = 2
+    MODE_3 = 3
 
-SPI_CPHA = 1 << 0
-SPI_CPOL = 1 << 1
+    CPHA = 1 << 0
+    CPOL = 1 << 1
 
-SPI_CS_HIGH_ACTIVE  = 1 << 2
+    CS_HIGH_ACTIVE  = 1 << 2
 
-SPI_TX_LSBFIRST = 1 << 14
-SPI_RX_LSBFIRST = 1 << 15
+    TX_LSBFIRST = 1 << 14
+    RX_LSBFIRST = 1 << 15
 
 EVENT_BSC = 31
 
@@ -426,453 +435,455 @@ _SOCK_CMD_LEN = 16
 
 # pigpio command numbers
 
-_PI_CMD_MODES= 0
-_PI_CMD_MODEG= 1
-_PI_CMD_PUD=   2
-_PI_CMD_READ=  3
-_PI_CMD_WRITE= 4
-_PI_CMD_PWM=   5
-_PI_CMD_PRS=   6
-_PI_CMD_PFS=   7
-_PI_CMD_SERVO= 8
-_PI_CMD_WDOG=  9
-_PI_CMD_BR1=  10
-_PI_CMD_BR2=  11
-_PI_CMD_BC1=  12
-_PI_CMD_BC2=  13
-_PI_CMD_BS1=  14
-_PI_CMD_BS2=  15
-_PI_CMD_TICK= 16
-_PI_CMD_HWVER=17
+class _PI_CMD(IntEnum):
+    MODES= 0
+    MODEG= 1
+    PUD=   2
+    READ=  3
+    WRITE= 4
+    PWM=   5
+    PRS=   6
+    PFS=   7
+    SERVO= 8
+    WDOG=  9
+    BR1=  10
+    BR2=  11
+    BC1=  12
+    BC2=  13
+    BS1=  14
+    BS2=  15
+    TICK= 16
+    HWVER=17
 
-_PI_CMD_NO=   18
-_PI_CMD_NB=   19
-_PI_CMD_NP=   20
-_PI_CMD_NC=   21
+    NO=   18
+    NB=   19
+    NP=   20
+    NC=   21
 
-_PI_CMD_PRG=  22
-_PI_CMD_PFG=  23
-_PI_CMD_PRRG= 24
-_PI_CMD_HELP= 25
-_PI_CMD_PIGPV=26
+    PRG=  22
+    PFG=  23
+    PRRG= 24
+    HELP= 25
+    PIGPV=26
 
-_PI_CMD_WVCLR=27
-_PI_CMD_WVAG= 28
-_PI_CMD_WVAS= 29
-_PI_CMD_WVGO= 30
-_PI_CMD_WVGOR=31
-_PI_CMD_WVBSY=32
-_PI_CMD_WVHLT=33
-_PI_CMD_WVSM= 34
-_PI_CMD_WVSP= 35
-_PI_CMD_WVSC= 36
+    WVCLR=27
+    WVAG= 28
+    WVAS= 29
+    WVGO= 30
+    WVGOR=31
+    WVBSY=32
+    WVHLT=33
+    WVSM= 34
+    WVSP= 35
+    WVSC= 36
 
-_PI_CMD_TRIG= 37
+    TRIG= 37
 
-_PI_CMD_PROC= 38
-_PI_CMD_PROCD=39
-_PI_CMD_PROCR=40
-_PI_CMD_PROCS=41
+    PROC= 38
+    PROCD=39
+    PROCR=40
+    PROCS=41
 
-_PI_CMD_SLRO= 42
-_PI_CMD_SLR=  43
-_PI_CMD_SLRC= 44
+    SLRO= 42
+    SLR=  43
+    SLRC= 44
 
-_PI_CMD_PROCP=45
-_PI_CMD_MICRO=46
-_PI_CMD_MILLI=47
-_PI_CMD_PARSE=48
+    PROCP=45
+    MICRO=46
+    MILLI=47
+    PARSE=48
 
-_PI_CMD_WVCRE=49
-_PI_CMD_WVDEL=50
-_PI_CMD_WVTX =51
-_PI_CMD_WVTXR=52
-_PI_CMD_WVNEW=53
+    WVCRE=49
+    WVDEL=50
+    WVTX =51
+    WVTXR=52
+    WVNEW=53
 
-_PI_CMD_I2CO =54
-_PI_CMD_I2CC =55
-_PI_CMD_I2CRD=56
-_PI_CMD_I2CWD=57
-_PI_CMD_I2CWQ=58
-_PI_CMD_I2CRS=59
-_PI_CMD_I2CWS=60
-_PI_CMD_I2CRB=61
-_PI_CMD_I2CWB=62
-_PI_CMD_I2CRW=63
-_PI_CMD_I2CWW=64
-_PI_CMD_I2CRK=65
-_PI_CMD_I2CWK=66
-_PI_CMD_I2CRI=67
-_PI_CMD_I2CWI=68
-_PI_CMD_I2CPC=69
-_PI_CMD_I2CPK=70
+    I2CO =54
+    I2CC =55
+    I2CRD=56
+    I2CWD=57
+    I2CWQ=58
+    I2CRS=59
+    I2CWS=60
+    I2CRB=61
+    I2CWB=62
+    I2CRW=63
+    I2CWW=64
+    I2CRK=65
+    I2CWK=66
+    I2CRI=67
+    I2CWI=68
+    I2CPC=69
+    I2CPK=70
 
-_PI_CMD_SPIO =71
-_PI_CMD_SPIC =72
-_PI_CMD_SPIR =73
-_PI_CMD_SPIW =74
-_PI_CMD_SPIX =75
+    SPIO =71
+    SPIC =72
+    SPIR =73
+    SPIW =74
+    SPIX =75
 
-_PI_CMD_SERO =76
-_PI_CMD_SERC =77
-_PI_CMD_SERRB=78
-_PI_CMD_SERWB=79
-_PI_CMD_SERR =80
-_PI_CMD_SERW =81
-_PI_CMD_SERDA=82
+    SERO =76
+    SERC =77
+    SERRB=78
+    SERWB=79
+    SERR =80
+    SERW =81
+    SERDA=82
 
-_PI_CMD_GDC  =83
-_PI_CMD_GPW  =84
+    GDC  =83
+    GPW  =84
 
-_PI_CMD_HC   =85
-_PI_CMD_HP   =86
+    HC   =85
+    HP   =86
 
-_PI_CMD_CF1  =87
-_PI_CMD_CF2  =88
+    CF1  =87
+    CF2  =88
 
-_PI_CMD_NOIB =99
+    NOIB =99
 
-_PI_CMD_BI2CC=89
-_PI_CMD_BI2CO=90
-_PI_CMD_BI2CZ=91
+    BI2CC=89
+    BI2CO=90
+    BI2CZ=91
 
-_PI_CMD_I2CZ =92
+    I2CZ =92
 
-_PI_CMD_WVCHA=93
+    WVCHA=93
 
-_PI_CMD_SLRI =94
+    SLRI =94
 
-_PI_CMD_CGI  =95
-_PI_CMD_CSI  =96
+    CGI  =95
+    CSI  =96
 
-_PI_CMD_FG   =97
-_PI_CMD_FN   =98
+    FG   =97
+    FN   =98
 
-_PI_CMD_WVTXM=100
-_PI_CMD_WVTAT=101
+    WVTXM=100
+    WVTAT=101
 
-_PI_CMD_PADS =102
-_PI_CMD_PADG =103
+    PADS =102
+    PADG =103
 
-_PI_CMD_FO   =104
-_PI_CMD_FC   =105
-_PI_CMD_FR   =106
-_PI_CMD_FW   =107
-_PI_CMD_FS   =108
-_PI_CMD_FL   =109
-_PI_CMD_SHELL=110
+    FO   =104
+    FC   =105
+    FR   =106
+    FW   =107
+    FS   =108
+    FL   =109
+    SHELL=110
 
-_PI_CMD_BSPIC=111
-_PI_CMD_BSPIO=112
-_PI_CMD_BSPIX=113
+    BSPIC=111
+    BSPIO=112
+    BSPIX=113
 
-_PI_CMD_BSCX =114
+    BSCX =114
 
-_PI_CMD_EVM  =115
-_PI_CMD_EVT  =116
+    EVM  =115
+    EVT  =116
 
-_PI_CMD_PROCU=117
-_PI_CMD_WVCAP=118
+    PROCU=117
+    WVCAP=118
 
 # pigpio error numbers
 
-_PI_INIT_FAILED     =-1
-PI_BAD_USER_GPIO    =-2
-PI_BAD_GPIO         =-3
-PI_BAD_MODE         =-4
-PI_BAD_LEVEL        =-5
-PI_BAD_PUD          =-6
-PI_BAD_PULSEWIDTH   =-7
-PI_BAD_DUTYCYCLE    =-8
-_PI_BAD_TIMER       =-9
-_PI_BAD_MS          =-10
-_PI_BAD_TIMETYPE    =-11
-_PI_BAD_SECONDS     =-12
-_PI_BAD_MICROS      =-13
-_PI_TIMER_FAILED    =-14
-PI_BAD_WDOG_TIMEOUT =-15
-_PI_NO_ALERT_FUNC   =-16
-_PI_BAD_CLK_PERIPH  =-17
-_PI_BAD_CLK_SOURCE  =-18
-_PI_BAD_CLK_MICROS  =-19
-_PI_BAD_BUF_MILLIS  =-20
-PI_BAD_DUTYRANGE    =-21
-_PI_BAD_SIGNUM      =-22
-_PI_BAD_PATHNAME    =-23
-PI_NO_HANDLE        =-24
-PI_BAD_HANDLE       =-25
-_PI_BAD_IF_FLAGS    =-26
-_PI_BAD_CHANNEL     =-27
-_PI_BAD_PRIM_CHANNEL=-27
-_PI_BAD_SOCKET_PORT =-28
-_PI_BAD_FIFO_COMMAND=-29
-_PI_BAD_SECO_CHANNEL=-30
-_PI_NOT_INITIALISED =-31
-_PI_INITIALISED     =-32
-_PI_BAD_WAVE_MODE   =-33
-_PI_BAD_CFG_INTERNAL=-34
-PI_BAD_WAVE_BAUD    =-35
-PI_TOO_MANY_PULSES  =-36
-PI_TOO_MANY_CHARS   =-37
-PI_NOT_SERIAL_GPIO  =-38
-_PI_BAD_SERIAL_STRUC=-39
-_PI_BAD_SERIAL_BUF  =-40
-PI_NOT_PERMITTED    =-41
-PI_SOME_PERMITTED   =-42
-PI_BAD_WVSC_COMMND  =-43
-PI_BAD_WVSM_COMMND  =-44
-PI_BAD_WVSP_COMMND  =-45
-PI_BAD_PULSELEN     =-46
-PI_BAD_SCRIPT       =-47
-PI_BAD_SCRIPT_ID    =-48
-PI_BAD_SER_OFFSET   =-49
-PI_GPIO_IN_USE      =-50
-PI_BAD_SERIAL_COUNT =-51
-PI_BAD_PARAM_NUM    =-52
-PI_DUP_TAG          =-53
-PI_TOO_MANY_TAGS    =-54
-PI_BAD_SCRIPT_CMD   =-55
-PI_BAD_VAR_NUM      =-56
-PI_NO_SCRIPT_ROOM   =-57
-PI_NO_MEMORY        =-58
-PI_SOCK_READ_FAILED =-59
-PI_SOCK_WRIT_FAILED =-60
-PI_TOO_MANY_PARAM   =-61
-PI_SCRIPT_NOT_READY =-62
-PI_BAD_TAG          =-63
-PI_BAD_MICS_DELAY   =-64
-PI_BAD_MILS_DELAY   =-65
-PI_BAD_WAVE_ID      =-66
-PI_TOO_MANY_CBS     =-67
-PI_TOO_MANY_OOL     =-68
-PI_EMPTY_WAVEFORM   =-69
-PI_NO_WAVEFORM_ID   =-70
-PI_I2C_OPEN_FAILED  =-71
-PI_SER_OPEN_FAILED  =-72
-PI_SPI_OPEN_FAILED  =-73
-PI_BAD_I2C_BUS      =-74
-PI_BAD_I2C_ADDR     =-75
-PI_BAD_SPI_CHANNEL  =-76
-PI_BAD_FLAGS        =-77
-PI_BAD_SPI_SPEED    =-78
-PI_BAD_SER_DEVICE   =-79
-PI_BAD_SER_SPEED    =-80
-PI_BAD_PARAM        =-81
-PI_I2C_WRITE_FAILED =-82
-PI_I2C_READ_FAILED  =-83
-PI_BAD_SPI_COUNT    =-84
-PI_SER_WRITE_FAILED =-85
-PI_SER_READ_FAILED  =-86
-PI_SER_READ_NO_DATA =-87
-PI_UNKNOWN_COMMAND  =-88
-PI_SPI_XFER_FAILED  =-89
-_PI_BAD_POINTER     =-90
-PI_NO_AUX_SPI       =-91
-PI_NOT_PWM_GPIO     =-92
-PI_NOT_SERVO_GPIO   =-93
-PI_NOT_HCLK_GPIO    =-94
-PI_NOT_HPWM_GPIO    =-95
-PI_BAD_HPWM_FREQ    =-96
-PI_BAD_HPWM_DUTY    =-97
-PI_BAD_HCLK_FREQ    =-98
-PI_BAD_HCLK_PASS    =-99
-PI_HPWM_ILLEGAL     =-100
-PI_BAD_DATABITS     =-101
-PI_BAD_STOPBITS     =-102
-PI_MSG_TOOBIG       =-103
-PI_BAD_MALLOC_MODE  =-104
-_PI_TOO_MANY_SEGS   =-105
-_PI_BAD_I2C_SEG     =-106
-PI_BAD_SMBUS_CMD    =-107
-PI_NOT_I2C_GPIO     =-108
-PI_BAD_I2C_WLEN     =-109
-PI_BAD_I2C_RLEN     =-110
-PI_BAD_I2C_CMD      =-111
-PI_BAD_I2C_BAUD     =-112
-PI_CHAIN_LOOP_CNT   =-113
-PI_BAD_CHAIN_LOOP   =-114
-PI_CHAIN_COUNTER    =-115
-PI_BAD_CHAIN_CMD    =-116
-PI_BAD_CHAIN_DELAY  =-117
-PI_CHAIN_NESTING    =-118
-PI_CHAIN_TOO_BIG    =-119
-PI_DEPRECATED       =-120
-PI_BAD_SER_INVERT   =-121
-_PI_BAD_EDGE        =-122
-_PI_BAD_ISR_INIT    =-123
-PI_BAD_FOREVER      =-124
-PI_BAD_FILTER       =-125
-PI_BAD_PAD          =-126
-PI_BAD_STRENGTH     =-127
-PI_FIL_OPEN_FAILED  =-128
-PI_BAD_FILE_MODE    =-129
-PI_BAD_FILE_FLAG    =-130
-PI_BAD_FILE_READ    =-131
-PI_BAD_FILE_WRITE   =-132
-PI_FILE_NOT_ROPEN   =-133
-PI_FILE_NOT_WOPEN   =-134
-PI_BAD_FILE_SEEK    =-135
-PI_NO_FILE_MATCH    =-136
-PI_NO_FILE_ACCESS   =-137
-PI_FILE_IS_A_DIR    =-138
-PI_BAD_SHELL_STATUS =-139
-PI_BAD_SCRIPT_NAME  =-140
-PI_BAD_SPI_BAUD     =-141
-PI_NOT_SPI_GPIO     =-142
-PI_BAD_EVENT_ID     =-143
-PI_CMD_INTERRUPTED  =-144
-PI_NOT_ON_BCM2711   =-145
-PI_ONLY_ON_BCM2711  =-146
-_PI_BAD_SOCKET_PATH =-152
+class ERR(IntEnum):
+    INIT_FAILED      =-1
+    BAD_USER_GPIO    =-2
+    BAD_GPIO         =-3
+    BAD_MODE         =-4
+    BAD_LEVEL        =-5
+    BAD_PUD          =-6
+    BAD_PULSEWIDTH   =-7
+    BAD_DUTYCYCLE    =-8
+    BAD_TIMER        =-9
+    BAD_MS           =-10
+    BAD_TIMETYPE     =-11
+    BAD_SECONDS      =-12
+    BAD_MICROS       =-13
+    TIMER_FAILED     =-14
+    BAD_WDOG_TIMEOUT =-15
+    NO_ALERT_FUNC    =-16
+    BAD_CLK_PERIPH   =-17
+    BAD_CLK_SOURCE   =-18
+    BAD_CLK_MICROS   =-19
+    BAD_BUF_MILLIS   =-20
+    BAD_DUTYRANGE    =-21
+    BAD_SIGNUM       =-22
+    BAD_PATHNAME     =-23
+    NO_HANDLE        =-24
+    BAD_HANDLE       =-25
+    BAD_IF_FLAGS     =-26
+    BAD_CHANNEL      =-27
+    BAD_PRIM_CHANNEL =-27
+    BAD_SOCKET_PORT  =-28
+    BAD_FIFO_COMMAND =-29
+    BAD_SECO_CHANNEL =-30
+    NOT_INITIALISED  =-31
+    INITIALISED      =-32
+    BAD_WAVE_MODE    =-33
+    BAD_CFG_INTERNAL =-34
+    BAD_WAVE_BAUD    =-35
+    TOO_MANY_PULSES  =-36
+    TOO_MANY_CHARS   =-37
+    NOT_SERIAL_GPIO  =-38
+    BAD_SERIAL_STRUC =-39
+    BAD_SERIAL_BUF   =-40
+    NOT_PERMITTED    =-41
+    SOME_PERMITTED   =-42
+    BAD_WVSC_COMMND  =-43
+    BAD_WVSM_COMMND  =-44
+    BAD_WVSP_COMMND  =-45
+    BAD_PULSELEN     =-46
+    BAD_SCRIPT       =-47
+    BAD_SCRIPT_ID    =-48
+    BAD_SER_OFFSET   =-49
+    GPIO_IN_USE      =-50
+    BAD_SERIAL_COUNT =-51
+    BAD_PARAM_NUM    =-52
+    DUP_TAG          =-53
+    TOO_MANY_TAGS    =-54
+    BAD_SCRIPT_CMD   =-55
+    BAD_VAR_NUM      =-56
+    NO_SCRIPT_ROOM   =-57
+    NO_MEMORY        =-58
+    SOCK_READ_FAILED =-59
+    SOCK_WRIT_FAILED =-60
+    TOO_MANY_PARAM   =-61
+    SCRIPT_NOT_READY =-62
+    BAD_TAG          =-63
+    BAD_MICS_DELAY   =-64
+    BAD_MILS_DELAY   =-65
+    BAD_WAVE_ID      =-66
+    TOO_MANY_CBS     =-67
+    TOO_MANY_OOL     =-68
+    EMPTY_WAVEFORM   =-69
+    NO_WAVEFORM_ID   =-70
+    I2C_OPEN_FAILED  =-71
+    SER_OPEN_FAILED  =-72
+    SPI_OPEN_FAILED  =-73
+    BAD_I2C_BUS      =-74
+    BAD_I2C_ADDR     =-75
+    BAD_SPI_CHANNEL  =-76
+    BAD_FLAGS        =-77
+    BAD_SPI_SPEED    =-78
+    BAD_SER_DEVICE   =-79
+    BAD_SER_SPEED    =-80
+    BAD_PARAM        =-81
+    I2C_WRITE_FAILED =-82
+    I2C_READ_FAILED  =-83
+    BAD_SPI_COUNT    =-84
+    SER_WRITE_FAILED =-85
+    SER_READ_FAILED  =-86
+    SER_READ_NO_DATA =-87
+    UNKNOWN_COMMAND  =-88
+    SPI_XFER_FAILED  =-89
+    BAD_POINTER      =-90
+    NO_AUX_SPI       =-91
+    NOT_PWM_GPIO     =-92
+    NOT_SERVO_GPIO   =-93
+    NOT_HCLK_GPIO    =-94
+    NOT_HPWM_GPIO    =-95
+    BAD_HPWM_FREQ    =-96
+    BAD_HPWM_DUTY    =-97
+    BAD_HCLK_FREQ    =-98
+    BAD_HCLK_PASS    =-99
+    HPWM_ILLEGAL     =-100
+    BAD_DATABITS     =-101
+    BAD_STOPBITS     =-102
+    MSG_TOOBIG       =-103
+    BAD_MALLOC_MODE  =-104
+    TOO_MANY_SEGS    =-105
+    BAD_I2C_SEG      =-106
+    BAD_SMBUS_CMD    =-107
+    NOT_I2C_GPIO     =-108
+    BAD_I2C_WLEN     =-109
+    BAD_I2C_RLEN     =-110
+    BAD_I2C_CMD      =-111
+    BAD_I2C_BAUD     =-112
+    CHAIN_LOOP_CNT   =-113
+    BAD_CHAIN_LOOP   =-114
+    CHAIN_COUNTER    =-115
+    BAD_CHAIN_CMD    =-116
+    BAD_CHAIN_DELAY  =-117
+    CHAIN_NESTING    =-118
+    CHAIN_TOO_BIG    =-119
+    DEPRECATED       =-120
+    BAD_SER_INVERT   =-121
+    BAD_EDGE         =-122
+    BAD_ISR_INIT     =-123
+    BAD_FOREVER      =-124
+    BAD_FILTER       =-125
+    BAD_PAD          =-126
+    BAD_STRENGTH     =-127
+    FILE_OPEN_FAILED =-128
+    BAD_FILE_MODE    =-129
+    BAD_FILE_FLAG    =-130
+    BAD_FILE_READ    =-131
+    BAD_FILE_WRITE   =-132
+    FILE_NOT_ROPEN   =-133
+    FILE_NOT_WOPEN   =-134
+    BAD_FILE_SEEK    =-135
+    NO_FILE_MATCH    =-136
+    NO_FILE_ACCESS   =-137
+    FILE_IS_A_DIR    =-138
+    BAD_SHELL_STATUS =-139
+    BAD_SCRIPT_NAME  =-140
+    BAD_SPI_BAUD     =-141
+    NOT_SPI_GPIO     =-142
+    BAD_EVENT_ID     =-143
+    CMD_INTERRUPTED  =-144
+    NOT_ON_BCM2711   =-145
+    ONLY_ON_BCM2711  =-146
+    BAD_SOCKET_PATH  =-152
 
 # pigpio error text
 
 _errors=[
-    [_PI_INIT_FAILED      , "pigpio initialisation failed"],
-    [PI_BAD_USER_GPIO     , "GPIO not 0-31"],
-    [PI_BAD_GPIO          , "GPIO not 0-53"],
-    [PI_BAD_MODE          , "mode not 0-7"],
-    [PI_BAD_LEVEL         , "level not 0-1"],
-    [PI_BAD_PUD           , "pud not 0-2"],
-    [PI_BAD_PULSEWIDTH    , "pulsewidth not 0 or 500-2500"],
-    [PI_BAD_DUTYCYCLE     , "dutycycle not 0-range (default 255)"],
-    [_PI_BAD_TIMER        , "timer not 0-9"],
-    [_PI_BAD_MS           , "ms not 10-60000"],
-    [_PI_BAD_TIMETYPE     , "timetype not 0-1"],
-    [_PI_BAD_SECONDS      , "seconds < 0"],
-    [_PI_BAD_MICROS       , "micros not 0-999999"],
-    [_PI_TIMER_FAILED     , "gpioSetTimerFunc failed"],
-    [PI_BAD_WDOG_TIMEOUT  , "timeout not 0-60000"],
-    [_PI_NO_ALERT_FUNC    , "DEPRECATED"],
-    [_PI_BAD_CLK_PERIPH   , "clock peripheral not 0-1"],
-    [_PI_BAD_CLK_SOURCE   , "DEPRECATED"],
-    [_PI_BAD_CLK_MICROS   , "clock micros not 1, 2, 4, 5, 8, or 10"],
-    [_PI_BAD_BUF_MILLIS   , "buf millis not 100-10000"],
-    [PI_BAD_DUTYRANGE     , "dutycycle range not 25-40000"],
-    [_PI_BAD_SIGNUM       , "signum not 0-63"],
-    [_PI_BAD_PATHNAME     , "can't open pathname"],
-    [PI_NO_HANDLE         , "no handle available"],
-    [PI_BAD_HANDLE        , "unknown handle"],
-    [_PI_BAD_IF_FLAGS     , "ifFlags > 4"],
-    [_PI_BAD_CHANNEL      , "DMA channel not 0-14"],
-    [_PI_BAD_SOCKET_PORT  , "socket port not 1024-30000"],
-    [_PI_BAD_FIFO_COMMAND , "unknown fifo command"],
-    [_PI_BAD_SECO_CHANNEL , "DMA secondary channel not 0-14"],
-    [_PI_NOT_INITIALISED  , "function called before gpioInitialise"],
-    [_PI_INITIALISED      , "function called after gpioInitialise"],
-    [_PI_BAD_WAVE_MODE    , "waveform mode not 0-1"],
-    [_PI_BAD_CFG_INTERNAL , "bad parameter in gpioCfgInternals call"],
-    [PI_BAD_WAVE_BAUD     , "baud rate not 50-250000(RX)/1000000(TX)"],
-    [PI_TOO_MANY_PULSES   , "waveform has too many pulses"],
-    [PI_TOO_MANY_CHARS    , "waveform has too many chars"],
-    [PI_NOT_SERIAL_GPIO   , "no bit bang serial read in progress on GPIO"],
-    [PI_NOT_PERMITTED     , "no permission to update GPIO"],
-    [PI_SOME_PERMITTED    , "no permission to update one or more GPIO"],
-    [PI_BAD_WVSC_COMMND   , "bad WVSC subcommand"],
-    [PI_BAD_WVSM_COMMND   , "bad WVSM subcommand"],
-    [PI_BAD_WVSP_COMMND   , "bad WVSP subcommand"],
-    [PI_BAD_PULSELEN      , "trigger pulse length not 1-100"],
-    [PI_BAD_SCRIPT        , "invalid script"],
-    [PI_BAD_SCRIPT_ID     , "unknown script id"],
-    [PI_BAD_SER_OFFSET    , "add serial data offset > 30 minute"],
-    [PI_GPIO_IN_USE       , "GPIO already in use"],
-    [PI_BAD_SERIAL_COUNT  , "must read at least a byte at a time"],
-    [PI_BAD_PARAM_NUM     , "script parameter id not 0-9"],
-    [PI_DUP_TAG           , "script has duplicate tag"],
-    [PI_TOO_MANY_TAGS     , "script has too many tags"],
-    [PI_BAD_SCRIPT_CMD    , "illegal script command"],
-    [PI_BAD_VAR_NUM       , "script variable id not 0-149"],
-    [PI_NO_SCRIPT_ROOM    , "no more room for scripts"],
-    [PI_NO_MEMORY         , "can't allocate temporary memory"],
-    [PI_SOCK_READ_FAILED  , "socket read failed"],
-    [PI_SOCK_WRIT_FAILED  , "socket write failed"],
-    [PI_TOO_MANY_PARAM    , "too many script parameters (> 10)"],
-    [PI_SCRIPT_NOT_READY  , "script initialising"],
-    [PI_BAD_TAG           , "script has unresolved tag"],
-    [PI_BAD_MICS_DELAY    , "bad MICS delay (too large)"],
-    [PI_BAD_MILS_DELAY    , "bad MILS delay (too large)"],
-    [PI_BAD_WAVE_ID       , "non existent wave id"],
-    [PI_TOO_MANY_CBS      , "No more CBs for waveform"],
-    [PI_TOO_MANY_OOL      , "No more OOL for waveform"],
-    [PI_EMPTY_WAVEFORM    , "attempt to create an empty waveform"],
-    [PI_NO_WAVEFORM_ID    , "No more waveform ids"],
-    [PI_I2C_OPEN_FAILED   , "can't open I2C device"],
-    [PI_SER_OPEN_FAILED   , "can't open serial device"],
-    [PI_SPI_OPEN_FAILED   , "can't open SPI device"],
-    [PI_BAD_I2C_BUS       , "bad I2C bus"],
-    [PI_BAD_I2C_ADDR      , "bad I2C address"],
-    [PI_BAD_SPI_CHANNEL   , "bad SPI channel"],
-    [PI_BAD_FLAGS         , "bad i2c/spi/ser open flags"],
-    [PI_BAD_SPI_SPEED     , "bad SPI speed"],
-    [PI_BAD_SER_DEVICE    , "bad serial device name"],
-    [PI_BAD_SER_SPEED     , "bad serial baud rate"],
-    [PI_BAD_PARAM         , "bad i2c/spi/ser parameter"],
-    [PI_I2C_WRITE_FAILED  , "I2C write failed"],
-    [PI_I2C_READ_FAILED   , "I2C read failed"],
-    [PI_BAD_SPI_COUNT     , "bad SPI count"],
-    [PI_SER_WRITE_FAILED  , "ser write failed"],
-    [PI_SER_READ_FAILED   , "ser read failed"],
-    [PI_SER_READ_NO_DATA  , "ser read no data available"],
-    [PI_UNKNOWN_COMMAND   , "unknown command"],
-    [PI_SPI_XFER_FAILED   , "SPI xfer/read/write failed"],
-    [_PI_BAD_POINTER      , "bad (NULL) pointer"],
-    [PI_NO_AUX_SPI        , "no auxiliary SPI on Pi A or B"],
-    [PI_NOT_PWM_GPIO      , "GPIO is not in use for PWM"],
-    [PI_NOT_SERVO_GPIO    , "GPIO is not in use for servo pulses"],
-    [PI_NOT_HCLK_GPIO     , "GPIO has no hardware clock"],
-    [PI_NOT_HPWM_GPIO     , "GPIO has no hardware PWM"],
-    [PI_BAD_HPWM_FREQ     , "invalid hardware PWM frequency"],
-    [PI_BAD_HPWM_DUTY     , "hardware PWM dutycycle not 0-1M"],
-    [PI_BAD_HCLK_FREQ     , "invalid hardware clock frequency"],
-    [PI_BAD_HCLK_PASS     , "need password to use hardware clock 1"],
-    [PI_HPWM_ILLEGAL      , "illegal, PWM in use for main clock"],
-    [PI_BAD_DATABITS      , "serial data bits not 1-32"],
-    [PI_BAD_STOPBITS      , "serial (half) stop bits not 2-8"],
-    [PI_MSG_TOOBIG        , "socket/pipe message too big"],
-    [PI_BAD_MALLOC_MODE   , "bad memory allocation mode"],
-    [_PI_TOO_MANY_SEGS    , "too many I2C transaction segments"],
-    [_PI_BAD_I2C_SEG      , "an I2C transaction segment failed"],
-    [PI_BAD_SMBUS_CMD     , "SMBus command not supported"],
-    [PI_NOT_I2C_GPIO      , "no bit bang I2C in progress on GPIO"],
-    [PI_BAD_I2C_WLEN      , "bad I2C write length"],
-    [PI_BAD_I2C_RLEN      , "bad I2C read length"],
-    [PI_BAD_I2C_CMD       , "bad I2C command"],
-    [PI_BAD_I2C_BAUD      , "bad I2C baud rate, not 50-500k"],
-    [PI_CHAIN_LOOP_CNT    , "bad chain loop count"],
-    [PI_BAD_CHAIN_LOOP    , "empty chain loop"],
-    [PI_CHAIN_COUNTER     , "too many chain counters"],
-    [PI_BAD_CHAIN_CMD     , "bad chain command"],
-    [PI_BAD_CHAIN_DELAY   , "bad chain delay micros"],
-    [PI_CHAIN_NESTING     , "chain counters nested too deeply"],
-    [PI_CHAIN_TOO_BIG     , "chain is too long"],
-    [PI_DEPRECATED        , "deprecated function removed"],
-    [PI_BAD_SER_INVERT    , "bit bang serial invert not 0 or 1"],
-    [_PI_BAD_EDGE         , "bad ISR edge value, not 0-2"],
-    [_PI_BAD_ISR_INIT     , "bad ISR initialisation"],
-    [PI_BAD_FOREVER       , "loop forever must be last chain command"],
-    [PI_BAD_FILTER        , "bad filter parameter"],
-    [PI_BAD_PAD           , "bad pad number"],
-    [PI_BAD_STRENGTH      , "bad pad drive strength"],
-    [PI_FIL_OPEN_FAILED   , "file open failed"],
-    [PI_BAD_FILE_MODE     , "bad file mode"],
-    [PI_BAD_FILE_FLAG     , "bad file flag"],
-    [PI_BAD_FILE_READ     , "bad file read"],
-    [PI_BAD_FILE_WRITE    , "bad file write"],
-    [PI_FILE_NOT_ROPEN    , "file not open for read"],
-    [PI_FILE_NOT_WOPEN    , "file not open for write"],
-    [PI_BAD_FILE_SEEK     , "bad file seek"],
-    [PI_NO_FILE_MATCH     , "no files match pattern"],
-    [PI_NO_FILE_ACCESS    , "no permission to access file"],
-    [PI_FILE_IS_A_DIR     , "file is a directory"],
-    [PI_BAD_SHELL_STATUS  , "bad shell return status"],
-    [PI_BAD_SCRIPT_NAME   , "bad script name"],
-    [PI_BAD_SPI_BAUD      , "bad SPI baud rate, not 50-500k"],
-    [PI_NOT_SPI_GPIO      , "no bit bang SPI in progress on GPIO"],
-    [PI_BAD_EVENT_ID      , "bad event id"],
-    [PI_CMD_INTERRUPTED   , "pigpio command interrupted"],
-    [PI_NOT_ON_BCM2711    , "not available on BCM2711"],
-    [PI_ONLY_ON_BCM2711   , "only available on BCM2711"],
-    [_PI_BAD_SOCKET_PATH  , "socket path empty"],
+    [ERR.INIT_FAILED       , "pigpio initialisation failed"],
+    [ERR.BAD_USER_GPIO     , "GPIO not 0-31"],
+    [ERR.BAD_GPIO          , "GPIO not 0-53"],
+    [ERR.BAD_MODE          , "mode not 0-7"],
+    [ERR.BAD_LEVEL         , "level not 0-1"],
+    [ERR.BAD_PUD           , "pud not 0-2"],
+    [ERR.BAD_PULSEWIDTH    , "pulsewidth not 0 or 500-2500"],
+    [ERR.BAD_DUTYCYCLE     , "dutycycle not 0-range (default 255)"],
+    [ERR.BAD_TIMER         , "timer not 0-9"],
+    [ERR.BAD_MS            , "ms not 10-60000"],
+    [ERR.BAD_TIMETYPE      , "timetype not 0-1"],
+    [ERR.BAD_SECONDS       , "seconds < 0"],
+    [ERR.BAD_MICROS        , "micros not 0-999999"],
+    [ERR.TIMER_FAILED      , "gpioSetTimerFunc failed"],
+    [ERR.BAD_WDOG_TIMEOUT  , "timeout not 0-60000"],
+    [ERR.NO_ALERT_FUNC    , "DEPRECATED"],
+    [ERR.BAD_CLK_PERIPH    , "clock peripheral not 0-1"],
+    [ERR.BAD_CLK_SOURCE    , "DEPRECATED"],
+    [ERR.BAD_CLK_MICROS    , "clock micros not 1, 2, 4, 5, 8, or 10"],
+    [ERR.BAD_BUF_MILLIS    , "buf millis not 100-10000"],
+    [ERR.BAD_DUTYRANGE     , "dutycycle range not 25-40000"],
+    [ERR.BAD_SIGNUM        , "signum not 0-63"],
+    [ERR.BAD_PATHNAME      , "can't open pathname"],
+    [ERR.NO_HANDLE         , "no handle available"],
+    [ERR.BAD_HANDLE        , "unknown handle"],
+    [ERR.BAD_IF_FLAGS      , "ifFlags > 4"],
+    [ERR.BAD_CHANNEL       , "DMA channel not 0-14"],
+    [ERR.BAD_SOCKET_PORT   , "socket port not 1024-30000"],
+    [ERR.BAD_FIFO_COMMAND  , "unknown fifo command"],
+    [ERR.BAD_SECO_CHANNEL  , "DMA secondary channel not 0-14"],
+    [ERR.NOT_INITIALISED   , "function called before gpioInitialise"],
+    [ERR.INITIALISED       , "function called after gpioInitialise"],
+    [ERR.BAD_WAVE_MODE     , "waveform mode not 0-1"],
+    [ERR.BAD_CFG_INTERNAL  , "bad parameter in gpioCfgInternals call"],
+    [ERR.BAD_WAVE_BAUD     , "baud rate not 50-250000(RX)/1000000(TX)"],
+    [ERR.TOO_MANY_PULSES   , "waveform has too many pulses"],
+    [ERR.TOO_MANY_CHARS    , "waveform has too many chars"],
+    [ERR.NOT_SERIAL_GPIO   , "no bit bang serial read in progress on GPIO"],
+    [ERR.NOT_PERMITTED     , "no permission to update GPIO"],
+    [ERR.SOME_PERMITTED    , "no permission to update one or more GPIO"],
+    [ERR.BAD_WVSC_COMMND   , "bad WVSC subcommand"],
+    [ERR.BAD_WVSM_COMMND   , "bad WVSM subcommand"],
+    [ERR.BAD_WVSP_COMMND   , "bad WVSP subcommand"],
+    [ERR.BAD_PULSELEN      , "trigger pulse length not 1-100"],
+    [ERR.BAD_SCRIPT        , "invalid script"],
+    [ERR.BAD_SCRIPT_ID     , "unknown script id"],
+    [ERR.BAD_SER_OFFSET    , "add serial data offset > 30 minute"],
+    [ERR.GPIO_IN_USE       , "GPIO already in use"],
+    [ERR.BAD_SERIAL_COUNT  , "must read at least a byte at a time"],
+    [ERR.BAD_PARAM_NUM     , "script parameter id not 0-9"],
+    [ERR.DUP_TAG           , "script has duplicate tag"],
+    [ERR.TOO_MANY_TAGS     , "script has too many tags"],
+    [ERR.BAD_SCRIPT_CMD    , "illegal script command"],
+    [ERR.BAD_VAR_NUM       , "script variable id not 0-149"],
+    [ERR.NO_SCRIPT_ROOM    , "no more room for scripts"],
+    [ERR.NO_MEMORY         , "can't allocate temporary memory"],
+    [ERR.SOCK_READ_FAILED  , "socket read failed"],
+    [ERR.SOCK_WRIT_FAILED  , "socket write failed"],
+    [ERR.TOO_MANY_PARAM    , "too many script parameters (> 10)"],
+    [ERR.SCRIPT_NOT_READY  , "script initialising"],
+    [ERR.BAD_TAG           , "script has unresolved tag"],
+    [ERR.BAD_MICS_DELAY    , "bad MICS delay (too large)"],
+    [ERR.BAD_MILS_DELAY    , "bad MILS delay (too large)"],
+    [ERR.BAD_WAVE_ID       , "non existent wave id"],
+    [ERR.TOO_MANY_CBS      , "No more CBs for waveform"],
+    [ERR.TOO_MANY_OOL      , "No more OOL for waveform"],
+    [ERR.EMPTY_WAVEFORM    , "attempt to create an empty waveform"],
+    [ERR.NO_WAVEFORM_ID    , "No more waveform ids"],
+    [ERR.I2C_OPEN_FAILED   , "can't open I2C device"],
+    [ERR.SER_OPEN_FAILED   , "can't open serial device"],
+    [ERR.SPI_OPEN_FAILED   , "can't open SPI device"],
+    [ERR.BAD_I2C_BUS       , "bad I2C bus"],
+    [ERR.BAD_I2C_ADDR      , "bad I2C address"],
+    [ERR.BAD_SPI_CHANNEL   , "bad SPI channel"],
+    [ERR.BAD_FLAGS         , "bad i2c/spi/ser open flags"],
+    [ERR.BAD_SPI_SPEED     , "bad SPI speed"],
+    [ERR.BAD_SER_DEVICE    , "bad serial device name"],
+    [ERR.BAD_SER_SPEED     , "bad serial baud rate"],
+    [ERR.BAD_PARAM         , "bad i2c/spi/ser parameter"],
+    [ERR.I2C_WRITE_FAILED  , "I2C write failed"],
+    [ERR.I2C_READ_FAILED   , "I2C read failed"],
+    [ERR.BAD_SPI_COUNT     , "bad SPI count"],
+    [ERR.SER_WRITE_FAILED  , "ser write failed"],
+    [ERR.SER_READ_FAILED   , "ser read failed"],
+    [ERR.SER_READ_NO_DATA  , "ser read no data available"],
+    [ERR.UNKNOWN_COMMAND   , "unknown command"],
+    [ERR.SPI_XFER_FAILED   , "SPI xfer/read/write failed"],
+    [ERR.BAD_POINTER       , "bad (NULL) pointer"],
+    [ERR.NO_AUX_SPI        , "no auxiliary SPI on Pi A or B"],
+    [ERR.NOT_PWM_GPIO      , "GPIO is not in use for PWM"],
+    [ERR.NOT_SERVO_GPIO    , "GPIO is not in use for servo pulses"],
+    [ERR.NOT_HCLK_GPIO     , "GPIO has no hardware clock"],
+    [ERR.NOT_HPWM_GPIO     , "GPIO has no hardware PWM"],
+    [ERR.BAD_HPWM_FREQ     , "invalid hardware PWM frequency"],
+    [ERR.BAD_HPWM_DUTY     , "hardware PWM dutycycle not 0-1M"],
+    [ERR.BAD_HCLK_FREQ     , "invalid hardware clock frequency"],
+    [ERR.BAD_HCLK_PASS     , "need password to use hardware clock 1"],
+    [ERR.HPWM_ILLEGAL      , "illegal, PWM in use for main clock"],
+    [ERR.BAD_DATABITS      , "serial data bits not 1-32"],
+    [ERR.BAD_STOPBITS      , "serial (half) stop bits not 2-8"],
+    [ERR.MSG_TOOBIG        , "socket/pipe message too big"],
+    [ERR.BAD_MALLOC_MODE   , "bad memory allocation mode"],
+    [ERR.TOO_MANY_SEGS     , "too many I2C transaction segments"],
+    [ERR.BAD_I2C_SEG       , "an I2C transaction segment failed"],
+    [ERR.BAD_SMBUS_CMD     , "SMBus command not supported"],
+    [ERR.NOT_I2C_GPIO      , "no bit bang I2C in progress on GPIO"],
+    [ERR.BAD_I2C_WLEN      , "bad I2C write length"],
+    [ERR.BAD_I2C_RLEN      , "bad I2C read length"],
+    [ERR.BAD_I2C_CMD       , "bad I2C command"],
+    [ERR.BAD_I2C_BAUD      , "bad I2C baud rate, not 50-500k"],
+    [ERR.CHAIN_LOOP_CNT    , "bad chain loop count"],
+    [ERR.BAD_CHAIN_LOOP    , "empty chain loop"],
+    [ERR.CHAIN_COUNTER     , "too many chain counters"],
+    [ERR.BAD_CHAIN_CMD     , "bad chain command"],
+    [ERR.BAD_CHAIN_DELAY   , "bad chain delay micros"],
+    [ERR.CHAIN_NESTING     , "chain counters nested too deeply"],
+    [ERR.CHAIN_TOO_BIG     , "chain is too long"],
+    [ERR.DEPRECATED        , "deprecated function removed"],
+    [ERR.BAD_SER_INVERT    , "bit bang serial invert not 0 or 1"],
+    [ERR.BAD_EDGE          , "bad ISR edge value, not 0-2"],
+    [ERR.BAD_ISR_INIT      , "bad ISR initialisation"],
+    [ERR.BAD_FOREVER       , "loop forever must be last chain command"],
+    [ERR.BAD_FILTER        , "bad filter parameter"],
+    [ERR.BAD_PAD           , "bad pad number"],
+    [ERR.BAD_STRENGTH      , "bad pad drive strength"],
+    [ERR.FILE_OPEN_FAILED  , "file open failed"],
+    [ERR.BAD_FILE_MODE     , "bad file mode"],
+    [ERR.BAD_FILE_FLAG     , "bad file flag"],
+    [ERR.BAD_FILE_READ     , "bad file read"],
+    [ERR.BAD_FILE_WRITE    , "bad file write"],
+    [ERR.FILE_NOT_ROPEN    , "file not open for read"],
+    [ERR.FILE_NOT_WOPEN    , "file not open for write"],
+    [ERR.BAD_FILE_SEEK     , "bad file seek"],
+    [ERR.NO_FILE_MATCH     , "no files match pattern"],
+    [ERR.NO_FILE_ACCESS    , "no permission to access file"],
+    [ERR.FILE_IS_A_DIR     , "file is a directory"],
+    [ERR.BAD_SHELL_STATUS  , "bad shell return status"],
+    [ERR.BAD_SCRIPT_NAME   , "bad script name"],
+    [ERR.BAD_SPI_BAUD      , "bad SPI baud rate, not 50-500k"],
+    [ERR.NOT_SPI_GPIO      , "no bit bang SPI in progress on GPIO"],
+    [ERR.BAD_EVENT_ID      , "bad event id"],
+    [ERR.CMD_INTERRUPTED   , "pigpio command interrupted"],
+    [ERR.NOT_ON_BCM2711    , "not available on BCM2711"],
+    [ERR.ONLY_ON_BCM2711   , "only available on BCM2711"],
+    [ERR.BAD_SOCKET_PATH   , "socket path empty"],
 ]
 
 _except_a = "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n{}"
@@ -1014,7 +1025,7 @@ def _pigpio_command(sl, cmd, p1, p2):
      p1:= command parameter 1 (if applicable).
      p2:= command parameter 2 (if applicable).
     """
-    res = PI_CMD_INTERRUPTED
+    res = ERR.CMD_INTERRUPTED
     with sl.l:
         sl.s.send(struct.pack('IIII', cmd, p1, p2, 0))
         dummy, res = struct.unpack('12sI', sl.s.recv(_SOCK_CMD_LEN))
@@ -1029,7 +1040,7 @@ def _pigpio_command_nolock(sl, cmd, p1, p2):
      p1:= command parameter 1 (if applicable).
      p2:= command parameter 2 (if applicable).
     """
-    res = PI_CMD_INTERRUPTED
+    res = ERR.CMD_INTERRUPTED
     sl.s.send(struct.pack('IIII', cmd, p1, p2, 0))
     dummy, res = struct.unpack('12sI', sl.s.recv(_SOCK_CMD_LEN))
     return res
@@ -1051,7 +1062,7 @@ def _pigpio_command_ext(sl, cmd, p1, p2, p3, extents):
             ext.extend(_b(x))
         else:
             ext.extend(x)
-    res = PI_CMD_INTERRUPTED
+    res = ERR.CMD_INTERRUPTED
     with sl.l:
         sl.s.sendall(ext)
         dummy, res = struct.unpack('12sI', sl.s.recv(_SOCK_CMD_LEN))
@@ -1068,7 +1079,7 @@ def _pigpio_command_ext_nolock(sl, cmd, p1, p2, p3, extents):
           p3:= total size in bytes of following extents
     extents:= additional data blocks
     """
-    res = PI_CMD_INTERRUPTED
+    res = ERR.CMD_INTERRUPTED
     ext = bytearray(struct.pack('IIII', cmd, p1, p2, p3))
     for x in extents:
         if type(x) == type(""):
@@ -1103,7 +1114,7 @@ class _callback_ADT:
         Initialises a callback ADT.
 
         gpio:= Broadcom GPIO number.
-        edge:= EITHER_EDGE, RISING_EDGE, or FALLING_EDGE.
+        edge:= EDGE.EITHER, EDGE.RISING, or EDGE.FALLING.
         func:= a user function taking three arguments (GPIO, level, tick).
         """
         self.gpio = gpio
@@ -1129,8 +1140,8 @@ class _callback_thread(threading.Thread):
             self.sl.s.connect(main._sock)
         else:
             self.sl.s = socket.create_connection((main._host, main._port), None)
-        self.lastLevel = _pigpio_command(self.sl,  _PI_CMD_BR1, 0, 0)
-        self.handle = _u2i(_pigpio_command(self.sl, _PI_CMD_NOIB, 0, 0))
+        self.lastLevel = _pigpio_command(self.sl,  _PI_CMD.BR1, 0, 0)
+        self.handle = _u2i(_pigpio_command(self.sl, _PI_CMD.NOIB, 0, 0))
         self.go = True
         self.start()
 
@@ -1138,13 +1149,13 @@ class _callback_thread(threading.Thread):
         """Stops notifications."""
         if self.go:
             self.go = False
-            self.sl.s.send(struct.pack('IIII', _PI_CMD_NC, self.handle, 0, 0))
+            self.sl.s.send(struct.pack('IIII', _PI_CMD.NC, self.handle, 0, 0))
 
     def append(self, callb):
         """Adds a callback to the notification thread."""
         self.callbacks.append(callb)
         self.monitor = self.monitor | callb.bit
-        _pigpio_command(self.control, _PI_CMD_NB, self.handle, self.monitor)
+        _pigpio_command(self.control, _PI_CMD.NB, self.handle, self.monitor)
 
     def remove(self, callb):
         """Removes a callback from the notification thread."""
@@ -1156,7 +1167,7 @@ class _callback_thread(threading.Thread):
             if newMonitor != self.monitor:
                 self.monitor = newMonitor
                 _pigpio_command(
-                    self.control, _PI_CMD_NB, self.handle, self.monitor)
+                    self.control, _PI_CMD.NB, self.handle, self.monitor)
 
     def append_event(self, callb):
         """
@@ -1164,7 +1175,7 @@ class _callback_thread(threading.Thread):
         """
         self.events.append(callb)
         self.event_bits = self.event_bits | callb.bit
-        _pigpio_command(self.control, _PI_CMD_EVM, self.handle, self.event_bits)
+        _pigpio_command(self.control, _PI_CMD.EVM, self.handle, self.event_bits)
 
     def remove_event(self, callb):
         """
@@ -1178,7 +1189,7 @@ class _callback_thread(threading.Thread):
             if new_event_bits != self.event_bits:
                 self.event_bits = new_event_bits
                 _pigpio_command(
-                    self.control, _PI_CMD_EVM, self.handle, self.event_bits)
+                    self.control, _PI_CMD.EVM, self.handle, self.event_bits)
 
     def run(self):
         """Runs the notification thread."""
@@ -1210,13 +1221,13 @@ class _callback_thread(threading.Thread):
                             if (cb.edge ^ newLevel):
                                  cb.func(cb.gpio, newLevel, tick)
                 else:
-                    if flags & NTFY_FLAGS_WDOG:
-                        gpio = flags & NTFY_FLAGS_GPIO
+                    if flags & NTFY_FLAGS.WDOG:
+                        gpio = flags & NTFY_FLAGS.GPIO
                         for cb in self.callbacks:
                             if cb.gpio == gpio:
                                 cb.func(gpio, TIMEOUT, tick)
-                    elif flags & NTFY_FLAGS_EVENT:
-                        event = flags & NTFY_FLAGS_GPIO
+                    elif flags & NTFY_FLAGS.EVENT:
+                        event = flags & NTFY_FLAGS.GPIO
                         for cb in self.events:
                             if cb.event == event:
                                 cb.func(event, tick)
@@ -1227,7 +1238,7 @@ class _callback_thread(threading.Thread):
 class _callback:
     """A class to provide GPIO level change callbacks."""
 
-    def __init__(self, notify, user_gpio, edge=RISING_EDGE, func=None):
+    def __init__(self, notify, user_gpio, edge=EDGE.RISING, func=None):
         """
         Initialise a callback and adds it to the notification thread.
         """
@@ -1366,12 +1377,12 @@ class pi():
         mode:= INPUT, OUTPUT, ALT0, ALT1, ALT2, ALT3, ALT4, ALT5.
 
         ...
-        pi.set_mode( 4, pigpio.INPUT)  # GPIO  4 as input
-        pi.set_mode(17, pigpio.OUTPUT) # GPIO 17 as output
-        pi.set_mode(24, pigpio.ALT2)   # GPIO 24 as ALT2
+        pi.set_mode( 4, pigpio.MODE.INPUT)  # GPIO  4 as input
+        pi.set_mode(17, pigpio.MODE.OUTPUT) # GPIO 17 as output
+        pi.set_mode(24, pigpio.MODE.ALT2)   # GPIO 24 as ALT2
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_MODES, gpio, mode))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.MODES, gpio, mode))
 
     def get_mode(self, gpio):
         """
@@ -1397,22 +1408,22 @@ class pi():
         4
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_MODEG, gpio, 0))
+        return MODE(_u2i(_pigpio_command(self.sl, _PI_CMD.MODEG, gpio, 0)))
 
     def set_pull_up_down(self, gpio, pud):
         """
         Sets or clears the internal GPIO pull-up/down resistor.
 
         gpio:= 0-53.
-         pud:= PUD_UP, PUD_DOWN, PUD_OFF.
+         pud:= PUD.UP, PUD.DOWN, PUD.OFF.
 
         ...
-        pi.set_pull_up_down(17, pigpio.PUD_OFF)
-        pi.set_pull_up_down(23, pigpio.PUD_UP)
-        pi.set_pull_up_down(24, pigpio.PUD_DOWN)
+        pi.set_pull_up_down(17, pigpio.PUD.OFF)
+        pi.set_pull_up_down(23, pigpio.PUD.UP)
+        pi.set_pull_up_down(24, pigpio.PUD.DOWN)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PUD, gpio, pud))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PUD, gpio, pud))
 
     def read(self, gpio):
         """
@@ -1421,18 +1432,18 @@ class pi():
         gpio:= 0-53.
 
         ...
-        pi.set_mode(23, pigpio.INPUT)
+        pi.set_mode(23, pigpio.MODE.INPUT)
 
-        pi.set_pull_up_down(23, pigpio.PUD_DOWN)
+        pi.set_pull_up_down(23, pigpio.PUD.DOWN)
         print(pi.read(23))
         0
 
-        pi.set_pull_up_down(23, pigpio.PUD_UP)
+        pi.set_pull_up_down(23, pigpio.PUD.UP)
         print(pi.read(23))
         1
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_READ, gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.READ, gpio, 0))
 
     def write(self, gpio, level):
         """
@@ -1456,7 +1467,7 @@ class pi():
         1
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WRITE, gpio, level))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WRITE, gpio, level))
 
     def set_PWM_dutycycle(self, user_gpio, dutycycle):
         """
@@ -1476,7 +1487,7 @@ class pi():
         ...
         """
         return _u2i(_pigpio_command(
-            self.sl, _PI_CMD_PWM, user_gpio, int(dutycycle)))
+            self.sl, _PI_CMD.PWM, user_gpio, int(dutycycle)))
 
     def get_PWM_dutycycle(self, user_gpio):
         """
@@ -1506,7 +1517,7 @@ class pi():
         203
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_GDC, user_gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.GDC, user_gpio, 0))
 
     def set_PWM_range(self, user_gpio, range_):
         """
@@ -1521,7 +1532,7 @@ class pi():
         pi.set_PWM_range(9, 3000) # now 750 1/4, 1500 1/2, 2250 3/4 on
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PRS, user_gpio, range_))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PRS, user_gpio, range_))
 
     def get_PWM_range(self, user_gpio):
         """
@@ -1538,7 +1549,7 @@ class pi():
         500
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PRG, user_gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PRG, user_gpio, 0))
 
     def get_PWM_real_range(self, user_gpio):
         """
@@ -1559,7 +1570,7 @@ class pi():
         250
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PRRG, user_gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PRRG, user_gpio, 0))
 
     def set_PWM_frequency(self, user_gpio, frequency):
         """
@@ -1569,7 +1580,7 @@ class pi():
         frequency:= >=0 Hz
 
         Returns the numerically closest frequency if OK, otherwise
-        PI_BAD_USER_GPIO or PI_NOT_PERMITTED.
+        ERR.BAD_USER_GPIO or ERR.NOT_PERMITTED.
 
         If PWM is currently active on the GPIO it will be switched
         off and then back on at the new frequency.
@@ -1617,7 +1628,7 @@ class pi():
         ...
         """
         return _u2i(
-            _pigpio_command(self.sl, _PI_CMD_PFS, user_gpio, frequency))
+            _pigpio_command(self.sl, _PI_CMD.PFS, user_gpio, frequency))
 
     def get_PWM_frequency(self, user_gpio):
         """
@@ -1646,7 +1657,7 @@ class pi():
         800
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PFG, user_gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PFG, user_gpio, 0))
 
     def set_servo_pulsewidth(self, user_gpio, pulsewidth):
         """
@@ -1674,7 +1685,7 @@ class pi():
         ...
     """
         return _u2i(_pigpio_command(
-            self.sl, _PI_CMD_SERVO, user_gpio, int(pulsewidth)))
+            self.sl, _PI_CMD.SERVO, user_gpio, int(pulsewidth)))
 
     def get_servo_pulsewidth(self, user_gpio):
         """
@@ -1694,7 +1705,7 @@ class pi():
         2130
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_GPW, user_gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.GPW, user_gpio, 0))
 
     def notify_open(self):
         """
@@ -1752,7 +1763,7 @@ class pi():
             pi.notify_begin(h, 1234)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_NO, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.NO, 0, 0))
 
     def notify_begin(self, handle, bits):
         """
@@ -1773,7 +1784,7 @@ class pi():
             pi.notify_begin(h, 1234)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_NB, handle, bits))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.NB, handle, bits))
 
     def notify_pause(self, handle):
         """
@@ -1795,7 +1806,7 @@ class pi():
             ...
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_NB, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.NB, handle, 0))
 
     def notify_close(self, handle):
         """
@@ -1812,7 +1823,7 @@ class pi():
             ...
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_NC, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.NC, handle, 0))
 
     def set_watchdog(self, user_gpio, wdog_timeout):
         """
@@ -1839,7 +1850,7 @@ class pi():
         ...
         """
         return _u2i(_pigpio_command(
-            self.sl, _PI_CMD_WDOG, user_gpio, int(wdog_timeout)))
+            self.sl, _PI_CMD.WDOG, user_gpio, int(wdog_timeout)))
 
     def read_bank_1(self):
         """
@@ -1853,7 +1864,7 @@ class pi():
         0b10010100000011100100001001111
         ...
         """
-        return _pigpio_command(self.sl, _PI_CMD_BR1, 0, 0)
+        return _pigpio_command(self.sl, _PI_CMD.BR1, 0, 0)
 
     def read_bank_2(self):
         """
@@ -1867,7 +1878,7 @@ class pi():
         0b1111110000000000000000
         ...
         """
-        return _pigpio_command(self.sl, _PI_CMD_BR2, 0, 0)
+        return _pigpio_command(self.sl, _PI_CMD.BR2, 0, 0)
 
     def clear_bank_1(self, bits):
         """
@@ -1876,14 +1887,14 @@ class pi():
         bits:= a 32 bit mask with 1 set if the corresponding GPIO is
                  to be cleared.
 
-        A returned status of PI_SOME_PERMITTED indicates that the user
+        A returned status of ERR.SOME_PERMITTED indicates that the user
         is not allowed to write to one or more of the GPIO.
 
         ...
         pi.clear_bank_1(int("111110010000",2))
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_BC1, bits, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.BC1, bits, 0))
 
     def clear_bank_2(self, bits):
         """
@@ -1892,14 +1903,14 @@ class pi():
         bits:= a 32 bit mask with 1 set if the corresponding GPIO is
                  to be cleared.
 
-        A returned status of PI_SOME_PERMITTED indicates that the user
+        A returned status of ERR.SOME_PERMITTED indicates that the user
         is not allowed to write to one or more of the GPIO.
 
         ...
         pi.clear_bank_2(0x1010)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_BC2, bits, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.BC2, bits, 0))
 
     def set_bank_1(self, bits):
         """
@@ -1908,14 +1919,14 @@ class pi():
         bits:= a 32 bit mask with 1 set if the corresponding GPIO is
                  to be set.
 
-        A returned status of PI_SOME_PERMITTED indicates that the user
+        A returned status of ERR.SOME_PERMITTED indicates that the user
         is not allowed to write to one or more of the GPIO.
 
         ...
         pi.set_bank_1(int("111110010000",2))
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_BS1, bits, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.BS1, bits, 0))
 
     def set_bank_2(self, bits):
         """
@@ -1924,14 +1935,14 @@ class pi():
         bits:= a 32 bit mask with 1 set if the corresponding GPIO is
                  to be set.
 
-        A returned status of PI_SOME_PERMITTED indicates that the user
+        A returned status of ERR.SOME_PERMITTED indicates that the user
         is not allowed to write to one or more of the GPIO.
 
         ...
         pi.set_bank_2(0x303)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_BS2, bits, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.BS2, bits, 0))
 
     def hardware_clock(self, gpio, clkfreq):
         """
@@ -1942,8 +1953,8 @@ class pi():
         clkfreq:= 0 (off) or 4689-250M (13184-375M for the BCM2711)
 
 
-        Returns 0 if OK, otherwise PI_NOT_PERMITTED, PI_BAD_GPIO,
-        PI_NOT_HCLK_GPIO, PI_BAD_HCLK_FREQ,or PI_BAD_HCLK_PASS.
+        Returns 0 if OK, otherwise ERR.NOT_PERMITTED, ERR.BAD_GPIO,
+        ERR.NOT_HCLK_GPIO, ERR.BAD_HCLK_FREQ,or ERR.BAD_HCLK_PASS.
 
         The same clock is available on multiple GPIO.  The latest
         frequency setting will be used by all GPIO which share a clock.
@@ -1974,7 +1985,7 @@ class pi():
         pi.hardware_clock(4, 40000000) # 40 MHz clock on GPIO 4
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_HC, gpio, clkfreq))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.HC, gpio, clkfreq))
 
     def hardware_PWM(self, gpio, PWMfreq, PWMduty):
         """
@@ -1992,8 +2003,8 @@ class pi():
         PWMfreq:= 0 (off) or 1-125M (1-187.5M for the BCM2711).
         PWMduty:= 0 (off) to 1000000 (1M)(fully on).
 
-        Returns 0 if OK, otherwise PI_NOT_PERMITTED, PI_BAD_GPIO,
-        PI_NOT_HPWM_GPIO, PI_BAD_HPWM_DUTY, PI_BAD_HPWM_FREQ.
+        Returns 0 if OK, otherwise ERR.NOT_PERMITTED, ERR.BAD_GPIO,
+        ERR.NOT_HPWM_GPIO, ERR.BAD_HPWM_DUTY, ERR.BAD_HPWM_FREQ.
 
         The same PWM channel is available on multiple GPIO.
         The latest frequency and dutycycle setting will be used
@@ -2040,7 +2051,7 @@ class pi():
         # I PWMdutycycle
         extents = [struct.pack("I", PWMduty)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_HP, gpio, PWMfreq, 4, extents))
+            self.sl, _PI_CMD.HP, gpio, PWMfreq, 4, extents))
 
 
     def get_current_tick(self):
@@ -2057,7 +2068,7 @@ class pi():
         t2 = pi.get_current_tick()
         ...
         """
-        return _pigpio_command(self.sl, _PI_CMD_TICK, 0, 0)
+        return _pigpio_command(self.sl, _PI_CMD.TICK, 0, 0)
 
     def get_hardware_revision(self):
         """
@@ -2085,7 +2096,7 @@ class pi():
         2
         ...
         """
-        return _pigpio_command(self.sl, _PI_CMD_HWVER, 0, 0)
+        return _pigpio_command(self.sl, _PI_CMD.HWVER, 0, 0)
 
     def get_pigpio_version(self):
         """
@@ -2095,7 +2106,7 @@ class pi():
         v = pi.get_pigpio_version()
         ...
         """
-        return _pigpio_command(self.sl, _PI_CMD_PIGPV, 0, 0)
+        return _pigpio_command(self.sl, _PI_CMD.PIGPV, 0, 0)
 
     def wave_clear(self):
         """
@@ -2106,7 +2117,7 @@ class pi():
         pi.wave_clear()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVCLR, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVCLR, 0, 0))
 
     def wave_add_new(self):
         """
@@ -2120,7 +2131,7 @@ class pi():
         pi.wave_add_new()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVNEW, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVNEW, 0, 0))
 
     def wave_add_generic(self, pulses):
         """
@@ -2196,7 +2207,7 @@ class pi():
                 ext.extend(struct.pack("III", p.gpio_on, p.gpio_off, p.delay))
             extents = [ext]
             return _u2i(_pigpio_command_ext(
-                self.sl, _PI_CMD_WVAG, 0, 0, len(pulses)*12, extents))
+                self.sl, _PI_CMD.WVAG, 0, 0, len(pulses)*12, extents))
         else:
             return 0
 
@@ -2253,7 +2264,7 @@ class pi():
         if len(data):
             extents = [struct.pack("III", bb_bits, bb_stop, offset), data]
             return _u2i(_pigpio_command_ext(
-                self.sl, _PI_CMD_WVAS, user_gpio, baud, len(data)+12, extents))
+                self.sl, _PI_CMD.WVAS, user_gpio, baud, len(data)+12, extents))
         else:
             return 0
 
@@ -2262,8 +2273,8 @@ class pi():
         Creates a waveform from the data provided by the prior calls
         to the [*wave_add_**] functions.
 
-        Returns a wave id (>=0) if OK,  otherwise PI_EMPTY_WAVEFORM,
-        PI_TOO_MANY_CBS, PI_TOO_MANY_OOL, or PI_NO_WAVEFORM_ID.
+        Returns a wave id (>=0) if OK,  otherwise ERR.EMPTY_WAVEFORM,
+        ERR.TOO_MANY_CBS, ERR.TOO_MANY_OOL, or ERR.NO_.WAVEFORM_ID.
 
         The data provided by the [*wave_add_**] functions is consumed by
         this function.
@@ -2302,7 +2313,7 @@ class pi():
         wid = pi.wave_create()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVCRE, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVCRE, 0, 0))
 
     def wave_create_and_pad(self, percent):
         """
@@ -2312,7 +2323,7 @@ class pi():
         This allows the reuse of deleted waves while a transmission is active.
 
         Upon success a wave id greater than or equal to 0 is returned, otherwise
-        PI_EMPTY_WAVEFORM, PI_TOO_MANY_CBS, PI_TOO_MANY_OOL, or PI_NO_WAVEFORM_ID.
+        ERR.EMPTY_WAVEFORM, ERR.TOO_MANY_CBS, ERR.TOO_MANY_OOL, or ERR.NO_.WAVEFORM_ID.
 
         . .
         percent: 0-100, size of waveform as percentage of maximum available.
@@ -2347,7 +2358,7 @@ class pi():
         wid = pi.wave_create_and_pad(50)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVCAP, percent, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVCAP, percent, 0))
 
     def wave_delete(self, wave_id):
         """
@@ -2372,7 +2383,7 @@ class pi():
         pi.wave_delete(0) # delete waveform with id 0
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVDEL, wave_id, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVDEL, wave_id, 0))
 
     def wave_tx_start(self): # DEPRECATED
         """
@@ -2380,7 +2391,7 @@ class pi():
 
         Use [*wave_create*]/[*wave_send_**] instead.
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVGO, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVGO, 0, 0))
 
     def wave_tx_repeat(self): # DEPRECATED
         """
@@ -2388,7 +2399,7 @@ class pi():
 
         Use [*wave_create*]/[*wave_send_**] instead.
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVGOR, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVGOR, 0, 0))
 
     def wave_send_once(self, wave_id):
         """
@@ -2406,7 +2417,7 @@ class pi():
         cbs = pi.wave_send_once(wid)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVTX, wave_id, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVTX, wave_id, 0))
 
     def wave_send_repeat(self, wave_id):
         """
@@ -2425,24 +2436,24 @@ class pi():
         cbs = pi.wave_send_repeat(wid)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVTXR, wave_id, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVTXR, wave_id, 0))
 
     def wave_send_using_mode(self, wave_id, mode):
         """
         Transmits the waveform with id wave_id using mode mode.
 
         wave_id:= >=0 (as returned by a prior call to [*wave_create*]).
-            mode:= WAVE_MODE_ONE_SHOT, WAVE_MODE_REPEAT,
-                     WAVE_MODE_ONE_SHOT_SYNC, or WAVE_MODE_REPEAT_SYNC.
+            mode:= WAVE_MODE.ONE_SHOT, WAVE_MODE.REPEAT,
+                     WAVE_MODE.ONE_SHOT_SYNC, or WAVE_MODE.REPEAT_SYNC.
 
-        WAVE_MODE_ONE_SHOT: same as [*wave_send_once*].
+        WAVE_MODE.ONE_SHOT: same as [*wave_send_once*].
 
-        WAVE_MODE_REPEAT same as [*wave_send_repeat*].
+        WAVE_MODE.REPEAT same as [*wave_send_repeat*].
 
-        WAVE_MODE_ONE_SHOT_SYNC same as [*wave_send_once*] but tries
+        WAVE_MODE.ONE_SHOT_SYNC same as [*wave_send_once*] but tries
         to sync with the previous waveform.
 
-        WAVE_MODE_REPEAT_SYNC same as [*wave_send_repeat*] but tries
+        WAVE_MODE.REPEAT_SYNC same as [*wave_send_repeat*] but tries
         to sync with the previous waveform.
 
         WARNING: bad things may happen if you delete the previous
@@ -2456,10 +2467,10 @@ class pi():
         Returns the number of DMA control blocks used in the waveform.
 
         ...
-        cbs = pi.wave_send_using_mode(wid, WAVE_MODE_REPEAT_SYNC)
+        cbs = pi.wave_send_using_mode(wid, WAVE_MODE.REPEAT_SYNC)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVTXM, wave_id, mode))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVTXM, wave_id, mode))
 
     def wave_tx_at(self):
         """
@@ -2476,7 +2487,7 @@ class pi():
         wid = pi.wave_tx_at()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVTAT, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVTAT, 0, 0))
 
     def wave_tx_busy(self):
         """
@@ -2492,7 +2503,7 @@ class pi():
         pi.wave_send_once(1) # send next waveform
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVBSY, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVBSY, 0, 0))
 
     def wave_tx_stop(self):
         """
@@ -2509,7 +2520,7 @@ class pi():
         pi.wave_tx_stop()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVHLT, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVHLT, 0, 0))
 
     def wave_chain(self, data):
         """
@@ -2522,10 +2533,10 @@ class pi():
         of data which contains an ordered list of [*wave_id*]s
         and optional command codes and related data.
 
-        Returns 0 if OK, otherwise PI_CHAIN_NESTING,
-        PI_CHAIN_LOOP_CNT, PI_BAD_CHAIN_LOOP, PI_BAD_CHAIN_CMD,
-        PI_CHAIN_COUNTER, PI_BAD_CHAIN_DELAY, PI_CHAIN_TOO_BIG,
-        or PI_BAD_WAVE_ID.
+        Returns 0 if OK, otherwise ERR.CHAIN_NESTING,
+        ERR.CHAIN_LOOP_CNT, ERR.BAD_CHAIN_LOOP, ERR.BAD_CHAIN_CMD,
+        ERR.CHAIN_COUNTER, ERR.BAD_CHAIN_DELAY, ERR.CHAIN_TOO_BIG,
+        or ERR.BAD_WAVE_ID.
 
         Each wave is transmitted in the order specified.  A wave
         may occur multiple times per chain.
@@ -2605,7 +2616,7 @@ class pi():
         # s len data bytes
 
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_WVCHA, 0, 0, len(data), [data]))
+            self.sl, _PI_CMD.WVCHA, 0, 0, len(data), [data]))
 
 
     def wave_get_micros(self):
@@ -2616,7 +2627,7 @@ class pi():
         micros = pi.wave_get_micros()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVSM, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVSM, 0, 0))
 
     def wave_get_max_micros(self):
         """
@@ -2626,7 +2637,7 @@ class pi():
         micros = pi.wave_get_max_micros()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVSM, 2, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVSM, 2, 0))
 
     def wave_get_pulses(self):
         """
@@ -2636,7 +2647,7 @@ class pi():
         pulses = pi.wave_get_pulses()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVSP, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVSP, 0, 0))
 
     def wave_get_max_pulses(self):
         """
@@ -2646,7 +2657,7 @@ class pi():
         pulses = pi.wave_get_max_pulses()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVSP, 2, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVSP, 2, 0))
 
     def wave_get_cbs(self):
         """
@@ -2657,7 +2668,7 @@ class pi():
         cbs = pi.wave_get_cbs()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVSC, 0, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVSC, 0, 0))
 
     def wave_get_max_cbs(self):
         """
@@ -2668,7 +2679,7 @@ class pi():
         cbs = pi.wave_get_max_cbs()
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_WVSC, 2, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.WVSC, 2, 0))
 
     def i2c_open(self, i2c_bus, i2c_address, i2c_flags=0):
         """
@@ -2716,7 +2727,7 @@ class pi():
         # I i2c_flags
         extents = [struct.pack("I", i2c_flags)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_I2CO, i2c_bus, i2c_address, 4, extents))
+            self.sl, _PI_CMD.I2CO, i2c_bus, i2c_address, 4, extents))
 
     def i2c_close(self, handle):
         """
@@ -2728,7 +2739,7 @@ class pi():
         pi.i2c_close(h)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_I2CC, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.I2CC, handle, 0))
 
     def i2c_write_quick(self, handle, bit):
         """
@@ -2747,7 +2758,7 @@ class pi():
         pi.i2c_write_quick(3, 0) # send 0 to device 3
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_I2CWQ, handle, bit))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.I2CWQ, handle, bit))
 
     def i2c_write_byte(self, handle, byte_val):
         """
@@ -2767,7 +2778,7 @@ class pi():
         ...
         """
         return _u2i(
-            _pigpio_command(self.sl, _PI_CMD_I2CWS, handle, byte_val))
+            _pigpio_command(self.sl, _PI_CMD.I2CWS, handle, byte_val))
 
     def i2c_read_byte(self, handle):
         """
@@ -2784,7 +2795,7 @@ class pi():
         b = pi.i2c_read_byte(2) # read a byte from device 2
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_I2CRS, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.I2CRS, handle, 0))
 
     def i2c_write_byte_data(self, handle, reg, byte_val):
         """
@@ -2815,7 +2826,7 @@ class pi():
         # I byte_val
         extents = [struct.pack("I", byte_val)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_I2CWB, handle, reg, 4, extents))
+            self.sl, _PI_CMD.I2CWB, handle, reg, 4, extents))
 
     def i2c_write_word_data(self, handle, reg, word_val):
         """
@@ -2846,7 +2857,7 @@ class pi():
         # I word_val
         extents = [struct.pack("I", word_val)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_I2CWW, handle, reg, 4, extents))
+            self.sl, _PI_CMD.I2CWW, handle, reg, 4, extents))
 
     def i2c_read_byte_data(self, handle, reg):
         """
@@ -2869,7 +2880,7 @@ class pi():
         b = pi.i2c_read_byte_data(0, 1)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_I2CRB, handle, reg))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.I2CRB, handle, reg))
 
     def i2c_read_word_data(self, handle, reg):
         """
@@ -2892,7 +2903,7 @@ class pi():
         w = pi.i2c_read_word_data(2, 7)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_I2CRW, handle, reg))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.I2CRW, handle, reg))
 
     def i2c_process_call(self, handle, reg, word_val):
         """
@@ -2921,7 +2932,7 @@ class pi():
         # I word_val
         extents = [struct.pack("I", word_val)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_I2CPC, handle, reg, 4, extents))
+            self.sl, _PI_CMD.I2CPC, handle, reg, 4, extents))
 
     def i2c_write_block_data(self, handle, reg, data):
         """
@@ -2955,7 +2966,7 @@ class pi():
         # s len data bytes
         if len(data):
             return _u2i(_pigpio_command_ext(
-                self.sl, _PI_CMD_I2CWK, handle, reg, len(data), [data]))
+                self.sl, _PI_CMD.I2CWK, handle, reg, len(data), [data]))
         else:
             return 0
 
@@ -2988,11 +2999,11 @@ class pi():
             # process read failure
         ...
         """
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_nolock(
-                self.sl, _PI_CMD_I2CRK, handle, reg))
+                self.sl, _PI_CMD.I2CRK, handle, reg))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3038,11 +3049,11 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_I2CPK, handle, reg, len(data), [data]))
+                self.sl, _PI_CMD.I2CPK, handle, reg, len(data), [data]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3077,7 +3088,7 @@ class pi():
         # s len data bytes
         if len(data):
             return _u2i(_pigpio_command_ext(
-                self.sl, _PI_CMD_I2CWI, handle, reg, len(data), [data]))
+                self.sl, _PI_CMD.I2CWI, handle, reg, len(data), [data]))
         else:
             return 0
 
@@ -3115,11 +3126,11 @@ class pi():
         # I count
         extents = [struct.pack("I", count)]
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_I2CRI, handle, reg, 4, extents))
+                self.sl, _PI_CMD.I2CRI, handle, reg, 4, extents))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3145,11 +3156,11 @@ class pi():
         (count, data) = pi.i2c_read_device(h, 12)
         ...
         """
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(
-                _pigpio_command_nolock(self.sl, _PI_CMD_I2CRD, handle, count))
+                _pigpio_command_nolock(self.sl, _PI_CMD.I2CRD, handle, count))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3182,7 +3193,7 @@ class pi():
         # s len data bytes
         if len(data):
             return _u2i(_pigpio_command_ext(
-                self.sl, _PI_CMD_I2CWD, handle, 0, len(data), [data]))
+                self.sl, _PI_CMD.I2CWD, handle, 0, len(data), [data]))
         else:
             return 0
 
@@ -3246,11 +3257,11 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_I2CZ, handle, 0, len(data), [data]))
+                self.sl, _PI_CMD.I2CZ, handle, 0, len(data), [data]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3288,30 +3299,30 @@ class pi():
         The following constants may be used to set the mode:
 
         . .
-        pigpio.SPI_MODE_0
-        pigpio.SPI_MODE_1
-        pigpio.SPI_MODE_2
-        pigpio.SPI_MODE_3
+        pigpio.SPI.MODE_0
+        pigpio.SPI.MODE_1
+        pigpio.SPI.MODE_2
+        pigpio.SPI.MODE_3
         . .
 
-        Alternatively pigpio.SPI_CPOL and/or pigpio.SPI_CPHA
+        Alternatively pigpio.SPI.CPOL and/or pigpio.SPI.CPHA
         may be used.
 
         p is 0 if CS is active low (default) and 1 for active high.
-        pigpio.SPI_CS_HIGH_ACTIVE may be used to set this flag.
+        pigpio.SPI.CS_HIGH_ACTIVE may be used to set this flag.
 
         T is 1 if the least significant bit is transmitted on MOSI first,
         the default (0) shifts the most significant bit out first.
-        pigpio.SPI_TX_LSBFIRST may be used to set this flag.
+        pigpio.SPI.TX_LSBFIRST may be used to set this flag.
 
         R is 1 if the least significant bit is received on MISO first,
         the default (0) receives the most significant bit first.
-        pigpio.SPI_RX_LSBFIRST may be used to set this flag.
+        pigpio.SPI.RX_LSBFIRST may be used to set this flag.
 
         The other bits in spiFlags should be set to zero.
 
-        Returns 0 if OK, otherwise PI_BAD_USER_GPIO, PI_BAD_SPI_BAUD, or
-        PI_GPIO_IN_USE.
+        Returns 0 if OK, otherwise ERR.BAD_USER_GPIO, ERR.BAD_SPI_BAUD, or
+        ERR.GPIO_IN_USE.
 
         If more than one device is connected to the SPI bus (defined by
         SCLK, MOSI, and MISO) each must have its own CS.
@@ -3333,7 +3344,7 @@ class pi():
 
         extents = [struct.pack("IIIII", MISO, MOSI, SCLK, baud, spi_flags)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_BSPIO, CS, 0, 20, extents))
+            self.sl, _PI_CMD.BSPIO, CS, 0, 20, extents))
 
 
     def bb_spi_close(self, CS):
@@ -3343,13 +3354,13 @@ class pi():
 
         CS:= 0-31, the CS GPIO used in a prior call to [*bb_spi_open*]
 
-        Returns 0 if OK, otherwise PI_BAD_USER_GPIO, or PI_NOT_SPI_GPIO.
+        Returns 0 if OK, otherwise ERR.BAD_USER_GPIO, or ERR.NOT_SPI_GPIO.
 
         ...
         pi.bb_spi_close(CS)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_BSPIC, CS, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.BSPIC, CS, 0))
 
 
     def bb_spi_xfer(self, CS, data):
@@ -3414,11 +3425,11 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_BSPIX, CS, 0, len(data), [data]))
+                self.sl, _PI_CMD.BSPIX, CS, 0, len(data), [data]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3441,8 +3452,8 @@ class pi():
          SCL:= 0-31
         baud:= 50-500000
 
-        Returns 0 if OK, otherwise PI_BAD_USER_GPIO, PI_BAD_I2C_BAUD, or
-        PI_GPIO_IN_USE.
+        Returns 0 if OK, otherwise ERR.BAD_USER_GPIO, ERR.BAD_I2C_BAUD, or
+        ERR.GPIO_IN_USE.
 
         NOTE:
 
@@ -3460,7 +3471,7 @@ class pi():
         # I baud
         extents = [struct.pack("I", baud)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_BI2CO, SDA, SCL, 4, extents))
+            self.sl, _PI_CMD.BI2CO, SDA, SCL, 4, extents))
 
 
     def bb_i2c_close(self, SDA):
@@ -3470,13 +3481,13 @@ class pi():
 
         SDA:= 0-31, the SDA GPIO used in a prior call to [*bb_i2c_open*]
 
-        Returns 0 if OK, otherwise PI_BAD_USER_GPIO, or PI_NOT_I2C_GPIO.
+        Returns 0 if OK, otherwise ERR.BAD_USER_GPIO, or ERR.NOT_I2C_GPIO.
 
         ...
         pi.bb_i2c_close(SDA)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_BI2CC, SDA, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.BI2CC, SDA, 0))
 
 
     def bb_i2c_zip(self, SDA, data):
@@ -3550,11 +3561,11 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_BI2CZ, SDA, 0, len(data), [data]))
+                self.sl, _PI_CMD.BI2CZ, SDA, 0, len(data), [data]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -3565,7 +3576,7 @@ class pi():
 
         event:= 0-31, the event
 
-        Returns 0 if OK, otherwise PI_BAD_EVENT_ID.
+        Returns 0 if OK, otherwise ERR.BAD_EVENT_ID.
 
         An event is a signal used to inform one or more consumers
         to start an action.  Each consumer which has registered an
@@ -3584,7 +3595,7 @@ class pi():
         pi.event_trigger(23)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_EVT, event, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.EVT, event, 0))
 
 
     def bsc_xfer(self, bsc_control, data):
@@ -3735,12 +3746,12 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        status = PI_CMD_INTERRUPTED
+        status = ERR.CMD_INTERRUPTED
         bytes = 0
         rdata = bytearray(b'')
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_BSCX, bsc_control, 0, len(data), [data]))
+                self.sl, _PI_CMD.BSCX, bsc_control, 0, len(data), [data]))
             if bytes > 0:
                 rx = self._rxbuf(bytes)
                 status = struct.unpack('I', rx[0:4])[0]
@@ -3972,7 +3983,7 @@ class pi():
         # I spi_flags
         extents = [struct.pack("I", spi_flags)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_SPIO, spi_channel, baud, 4, extents))
+            self.sl, _PI_CMD.SPIO, spi_channel, baud, 4, extents))
 
     def spi_close(self, handle):
         """
@@ -3984,7 +3995,7 @@ class pi():
         pi.spi_close(h)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_SPIC, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.SPIC, handle, 0))
 
     def spi_read(self, handle, count):
         """
@@ -4006,11 +4017,11 @@ class pi():
             # error path
         ...
         """
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_nolock(
-                self.sl, _PI_CMD_SPIR, handle, count))
+                self.sl, _PI_CMD.SPIR, handle, count))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4038,7 +4049,7 @@ class pi():
         ## extension ##
         # s len data bytes
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_SPIW, handle, 0, len(data), [data]))
+            self.sl, _PI_CMD.SPIW, handle, 0, len(data), [data]))
 
     def spi_xfer(self, handle, data):
         """
@@ -4069,11 +4080,11 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_SPIX, handle, 0, len(data), [data]))
+                self.sl, _PI_CMD.SPIX, handle, 0, len(data), [data]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4111,7 +4122,7 @@ class pi():
         ## extension ##
         # s len data bytes
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_SERO, baud, ser_flags, len(tty), [tty]))
+            self.sl, _PI_CMD.SERO, baud, ser_flags, len(tty), [tty]))
 
     def serial_close(self, handle):
         """
@@ -4123,7 +4134,7 @@ class pi():
         pi.serial_close(h1)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_SERC, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.SERC, handle, 0))
 
     def serial_read_byte(self, handle):
         """
@@ -4137,7 +4148,7 @@ class pi():
         b = pi.serial_read_byte(h1)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_SERRB, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.SERRB, handle, 0))
 
     def serial_write_byte(self, handle, byte_val):
         """
@@ -4153,7 +4164,7 @@ class pi():
         ...
         """
         return _u2i(
-            _pigpio_command(self.sl, _PI_CMD_SERWB, handle, byte_val))
+            _pigpio_command(self.sl, _PI_CMD.SERWB, handle, byte_val))
 
     def serial_read(self, handle, count=1000):
         """
@@ -4174,11 +4185,11 @@ class pi():
             # process read data
         ...
         """
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(
-                _pigpio_command_nolock(self.sl, _PI_CMD_SERR, handle, count))
+                _pigpio_command_nolock(self.sl, _PI_CMD.SERR, handle, count))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4207,7 +4218,7 @@ class pi():
         # s len data bytes
 
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_SERW, handle, 0, len(data), [data]))
+            self.sl, _PI_CMD.SERW, handle, 0, len(data), [data]))
 
     def serial_data_available(self, handle):
         """
@@ -4223,7 +4234,7 @@ class pi():
             (b, d) = pi.serial_read(h1, rdy)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_SERDA, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.SERDA, handle, 0))
 
     def gpio_trigger(self, user_gpio, pulse_len=10, level=1):
         """
@@ -4247,7 +4258,7 @@ class pi():
         # I level
         extents = [struct.pack("I", level)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_TRIG, user_gpio, pulse_len, 4, extents))
+            self.sl, _PI_CMD.TRIG, user_gpio, pulse_len, 4, extents))
 
     def set_glitch_filter(self, user_gpio, steady):
         """
@@ -4261,7 +4272,7 @@ class pi():
         user_gpio:= 0-31
             steady:= 0-300000
 
-        Returns 0 if OK, otherwise PI_BAD_USER_GPIO, or PI_BAD_FILTER.
+        Returns 0 if OK, otherwise ERR.BAD_USER_GPIO, or ERR.BAD_FILTER.
 
         This filter affects the GPIO samples returned to callbacks set up
         with [*callback*] and [*wait_for_edge*].
@@ -4276,7 +4287,7 @@ class pi():
         pi.set_glitch_filter(23, 100)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_FG, user_gpio, steady))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.FG, user_gpio, steady))
 
     def set_noise_filter(self, user_gpio, steady, active):
         """
@@ -4291,7 +4302,7 @@ class pi():
             steady:= 0-300000
             active:= 0-1000000
 
-        Returns 0 if OK, otherwise PI_BAD_USER_GPIO, or PI_BAD_FILTER.
+        Returns 0 if OK, otherwise ERR.BAD_USER_GPIO, or ERR.BAD_FILTER.
 
         This filter affects the GPIO samples returned to callbacks set up
         with [*callback*] and [*wait_for_edge*].
@@ -4316,7 +4327,7 @@ class pi():
         # I active
         extents = [struct.pack("I", active)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_FN, user_gpio, steady, 4, extents))
+            self.sl, _PI_CMD.FN, user_gpio, steady, 4, extents))
 
     def store_script(self, script):
         """
@@ -4341,7 +4352,7 @@ class pi():
         # s len data bytes
         if len(script):
             return _u2i(_pigpio_command_ext(
-                self.sl, _PI_CMD_PROC, 0, 0, len(script), [script]))
+                self.sl, _PI_CMD.PROC, 0, 0, len(script), [script]))
         else:
             return 0
 
@@ -4375,7 +4386,7 @@ class pi():
             nump = 0
             extents = []
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_PROCR, script_id, 0, nump*4, extents))
+            self.sl, _PI_CMD.PROCR, script_id, 0, nump*4, extents))
 
     def update_script(self, script_id, params=None):
         """
@@ -4407,7 +4418,7 @@ class pi():
             nump = 0
             extents = []
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_PROCU, script_id, 0, nump*4, extents))
+            self.sl, _PI_CMD.PROCU, script_id, 0, nump*4, extents))
 
     def script_status(self, script_id):
         """
@@ -4419,11 +4430,11 @@ class pi():
         The run status may be
 
         . .
-        PI_SCRIPT_INITING
-        PI_SCRIPT_HALTED
-        PI_SCRIPT_RUNNING
-        PI_SCRIPT_WAITING
-        PI_SCRIPT_FAILED
+        ERR.SCRIPT.INITING
+        ERR.SCRIPT.HALTED
+        ERR.SCRIPT.RUNNING
+        ERR.SCRIPT.WAITING
+        ERR.SCRIPT.FAILED
         . .
 
         The return value is a tuple of run status and a list of
@@ -4434,11 +4445,11 @@ class pi():
         (s, pars) = pi.script_status(sid)
         ...
         """
-        status = PI_CMD_INTERRUPTED
+        status = ERR.CMD_INTERRUPTED
         params = ()
         with self.sl.l:
             bytes = u2i(
-                _pigpio_command_nolock(self.sl, _PI_CMD_PROCP, script_id, 0))
+                _pigpio_command_nolock(self.sl, _PI_CMD.PROCP, script_id, 0))
             if bytes > 0:
                 data = self._rxbuf(bytes)
                 pars = struct.unpack('11i', _str(data))
@@ -4458,7 +4469,7 @@ class pi():
         status = pi.stop_script(sid)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PROCS, script_id, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PROCS, script_id, 0))
 
     def delete_script(self, script_id):
         """
@@ -4470,7 +4481,7 @@ class pi():
         status = pi.delete_script(sid)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PROCD, script_id, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PROCD, script_id, 0))
 
     def bb_serial_read_open(self, user_gpio, baud, bb_bits=8):
         """
@@ -4500,7 +4511,7 @@ class pi():
         # I bb_bits
         extents = [struct.pack("I", bb_bits)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_SLRO, user_gpio, baud, 4, extents))
+            self.sl, _PI_CMD.SLRO, user_gpio, baud, 4, extents))
 
     def bb_serial_read(self, user_gpio):
         """
@@ -4525,11 +4536,11 @@ class pi():
         (count, data) = pi.bb_serial_read(4)
         ...
         """
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
              bytes = u2i(
-                 _pigpio_command_nolock(self.sl, _PI_CMD_SLR, user_gpio, 10000))
+                 _pigpio_command_nolock(self.sl, _PI_CMD.SLR, user_gpio, 10000))
              if bytes > 0:
                  rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4545,7 +4556,7 @@ class pi():
         status = pi.bb_serial_read_close(17)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_SLRC, user_gpio, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.SLRC, user_gpio, 0))
 
     def bb_serial_invert(self, user_gpio, invert):
         """
@@ -4558,7 +4569,7 @@ class pi():
         status = pi.bb_serial_invert(17, 1)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_SLRI, user_gpio, invert))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.SLRI, user_gpio, invert))
 
 
     def custom_1(self, arg1=0, arg2=0, argx=[]):
@@ -4593,7 +4604,7 @@ class pi():
         # s len argx bytes
 
         return u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_CF1, arg1, arg2, len(argx), [argx]))
+            self.sl, _PI_CMD.CF1, arg1, arg2, len(argx), [argx]))
 
     def custom_2(self, arg1=0, argx=[], retMax=8192):
         """
@@ -4626,11 +4637,11 @@ class pi():
         ## extension ##
         # s len argx bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_CF2, arg1, retMax, len(argx), [argx]))
+                self.sl, _PI_CMD.CF2, arg1, retMax, len(argx), [argx]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4641,7 +4652,7 @@ class pi():
 
         pad:= 0-2, the pad to get.
 
-        Returns the pad drive strength if OK, otherwise PI_BAD_PAD.
+        Returns the pad drive strength if OK, otherwise ERR.BAD_PAD.
 
         Pad @ GPIO
         0   @ 0-27
@@ -4652,7 +4663,7 @@ class pi():
         strength = pi.get_pad_strength(0) # Get pad 0 strength.
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PADG, pad, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PADG, pad, 0))
 
     def set_pad_strength(self, pad, pad_strength):
         """
@@ -4662,7 +4673,7 @@ class pi():
                     pad:= 0-2, the pad to set.
         pad_strength:= 1-16 mA.
 
-        Returns 0 if OK, otherwise PI_BAD_PAD, or PI_BAD_STRENGTH.
+        Returns 0 if OK, otherwise ERR.BAD_PAD, or ERR.BAD_STRENGTH.
 
         Pad @ GPIO
         0   @ 0-27
@@ -4673,7 +4684,7 @@ class pi():
         pi.set_pad_strength(2, 14) # Set pad 2 to 14 mA.
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_PADS, pad, pad_strength))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.PADS, pad, pad_strength))
 
 
     def file_open(self, file_name, file_mode):
@@ -4683,13 +4694,13 @@ class pi():
         file_name:= the file to open.
         file_mode:= the file open mode.
 
-        Returns a handle (>=0) if OK, otherwise PI_NO_HANDLE,
-        PI_NO_FILE_ACCESS, PI_BAD_FILE_MODE,
-        PI_FILE_OPEN_FAILED, or PI_FILE_IS_A_DIR.
+        Returns a handle (>=0) if OK, otherwise ERR.NO_.HANDLE,
+        ERR.NO_.FILE_ACCESS, ERR.BAD_FILE_MODE,
+        ERR.FILE_OPEN_FAILED, or ERR.FILE_IS_A_DIR.
 
         ...
         h = pi.file_open("/home/pi/shared/dir_3/file.txt",
-                  pigpio.FILE_WRITE | pigpio.FILE_CREATE)
+                  pigpio.FILE.WRITE | pigpio.FILE.CREATE)
 
         pi.file_write(h, "Hello world")
 
@@ -4744,16 +4755,16 @@ class pi():
         The mode may have the following values:
 
         Constant   @ Value @ Meaning
-        FILE_READ  @   1   @ open file for reading
-        FILE_WRITE @   2   @ open file for writing
-        FILE_RW    @   3   @ open file for reading and writing
+        FILE.READ  @   1   @ open file for reading
+        FILE.WRITE @   2   @ open file for writing
+        FILE.RW    @   3   @ open file for reading and writing
 
         The following values may be or'd into the mode:
 
         Name        @ Value @ Meaning
-        FILE_APPEND @ 4     @ All writes append data to the end of the file
-        FILE_CREATE @ 8     @ The file is created if it doesn't exist
-        FILE_TRUNC  @ 16    @ The file is truncated
+        FILE.APPEND @ 4     @ All writes append data to the end of the file
+        FILE.CREATE @ 8     @ The file is created if it doesn't exist
+        FILE.TRUNC  @ 16    @ The file is truncated
 
         Newly created files are owned by root with permissions owner
         read and write.
@@ -4771,7 +4782,7 @@ class pi():
         # Assumes /opt/pigpio/access contains the following line:
         # /ram/*.c r
 
-        handle = pi.file_open("/ram/pigpio.c", pigpio.FILE_READ)
+        handle = pi.file_open("/ram/pigpio.c", pigpio.FILE.READ)
 
         done = False
 
@@ -4793,7 +4804,7 @@ class pi():
         ## extension ##
         # s len data bytes
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_FO, file_mode, 0, len(file_name), [file_name]))
+            self.sl, _PI_CMD.FO, file_mode, 0, len(file_name), [file_name]))
 
     def file_close(self, handle):
         """
@@ -4805,7 +4816,7 @@ class pi():
         pi.file_close(handle)
         ...
         """
-        return _u2i(_pigpio_command(self.sl, _PI_CMD_FC, handle, 0))
+        return _u2i(_pigpio_command(self.sl, _PI_CMD.FC, handle, 0))
 
     def file_read(self, handle, count):
         """
@@ -4825,11 +4836,11 @@ class pi():
             # process read data
         ...
         """
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(
-                _pigpio_command_nolock(self.sl, _PI_CMD_FR, handle, count))
+                _pigpio_command_nolock(self.sl, _PI_CMD.FR, handle, count))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4858,7 +4869,7 @@ class pi():
         # s len data bytes
 
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_FW, handle, 0, len(data), [data]))
+            self.sl, _PI_CMD.FW, handle, 0, len(data), [data]))
 
     def file_seek(self, handle, seek_offset, seek_from):
         """
@@ -4867,14 +4878,14 @@ class pi():
 
               handle:= >=0 (as returned by a prior call to [*file_open*]).
         seek_offset:= byte offset.
-          seek_from:= FROM_START, FROM_CURRENT, or FROM_END.
+          seek_from:= FILE.FROM_START, FILE.FROM_CURRENT, or FILE.FROM_END.
 
         ...
-        new_pos = pi.file_seek(h, 100, pigpio.FROM_START)
+        new_pos = pi.file_seek(h, 100, pigpio.FILE.FROM_START)
 
-        cur_pos = pi.file_seek(h, 0, pigpio.FROM_CURRENT)
+        cur_pos = pi.file_seek(h, 0, pigpio.FILE.FROM_CURRENT)
 
-        file_size = pi.file_seek(h, 0, pigpio.FROM_END)
+        file_size = pi.file_seek(h, 0, pigpio.FILE.FROM_END)
         ...
         """
         # I p1 handle
@@ -4884,7 +4895,7 @@ class pi():
         # I seek_from
         extents = [struct.pack("I", seek_from)]
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_FS, handle, seek_offset, 4, extents))
+            self.sl, _PI_CMD.FS, handle, seek_offset, 4, extents))
 
     def file_list(self, fpattern):
         """
@@ -4893,7 +4904,7 @@ class pi():
         fpattern:= file pattern to match.
 
         Returns the number of returned bytes if OK, otherwise
-        PI_NO_FILE_ACCESS, or PI_NO_FILE_MATCH.
+        ERR.NO_.FILE_ACCESS, or ERR.NO_.FILE_MATCH.
 
         The pattern must match an entry in /opt/pigpio/access.  The
         pattern may contain wildcards.  See [*file_open*].
@@ -4930,11 +4941,11 @@ class pi():
         ## extension ##
         # s len data bytes
 
-        bytes = PI_CMD_INTERRUPTED
+        bytes = ERR.CMD_INTERRUPTED
         rdata = ""
         with self.sl.l:
             bytes = u2i(_pigpio_command_ext_nolock(
-                self.sl, _PI_CMD_FL, 60000, 0, len(fpattern), [fpattern]))
+                self.sl, _PI_CMD.FL, 60000, 0, len(fpattern), [fpattern]))
             if bytes > 0:
                 rdata = self._rxbuf(bytes)
         return bytes, rdata
@@ -4949,7 +4960,7 @@ class pi():
         pstring := the parameter string to pass to the script
 
         The exit status of the system call is returned if OK,
-        otherwise PI_BAD_SHELL_STATUS.
+        otherwise ERR.BAD_SHELL_STATUS.
 
         [*shellscr*] must exist in /opt/pigpio/cgi and must be executable.
 
@@ -4986,16 +4997,16 @@ class pi():
         ls = len(shellscr)
         lp = len(pstring)
         return _u2i(_pigpio_command_ext(
-            self.sl, _PI_CMD_SHELL, ls, 0, ls+lp+1, [shellscr+'\x00'+pstring]))
+            self.sl, _PI_CMD.SHELL, ls, 0, ls+lp+1, [shellscr+'\x00'+pstring]))
 
 
-    def callback(self, user_gpio, edge=RISING_EDGE, func=None):
+    def callback(self, user_gpio, edge=EDGE.RISING, func=None):
         """
         Calls a user supplied function (a callback) whenever the
         specified GPIO edge is detected.
 
         user_gpio:= 0-31.
-              edge:= EITHER_EDGE, RISING_EDGE (default), or FALLING_EDGE.
+              edge:= EDGE.EITHER, EDGE.RISING (default), or EDGE.FALLING.
               func:= user supplied callback function.
 
         The user supplied callback receives three parameters, the GPIO,
@@ -5060,9 +5071,9 @@ class pi():
         def cbf(gpio, level, tick):
             print(gpio, level, tick)
 
-        cb1 = pi.callback(22, pigpio.EITHER_EDGE, cbf)
+        cb1 = pi.callback(22, pigpio.EDGE.EITHER, cbf)
 
-        cb2 = pi.callback(4, pigpio.EITHER_EDGE)
+        cb2 = pi.callback(4, pigpio.EDGE.EITHER)
 
         cb3 = pi.callback(17)
 
@@ -5114,13 +5125,13 @@ class pi():
 
         return _event(self._notify, event, func)
 
-    def wait_for_edge(self, user_gpio, edge=RISING_EDGE, wait_timeout=60.0):
+    def wait_for_edge(self, user_gpio, edge=EDGE.RISING, wait_timeout=60.0):
         """
         Wait for an edge event on a GPIO.
 
             user_gpio:= 0-31.
-                  edge:= EITHER_EDGE, RISING_EDGE (default), or
-                            FALLING_EDGE.
+                  edge:= EDGE.EITHER, EDGE.RISING (default), or
+                            EDGE.FALLING.
         wait_timeout:= >=0.0 (default 60.0).
 
         The function returns when the edge is detected or after
@@ -5140,7 +5151,7 @@ class pi():
         else:
             print("wait for edge timed out")
 
-        if pi.wait_for_edge(23, pigpio.FALLING_EDGE, 5.0):
+        if pi.wait_for_edge(23, pigpio.EDGE.FALLING, 5.0):
             print("Falling edge detected")
         else:
             print("wait for falling edge timed out")
@@ -5384,129 +5395,129 @@ def xref():
     edge: 0-2
 
     . .
-    EITHER_EDGE = 2
-    FALLING_EDGE = 1
-    RISING_EDGE = 0
+    EDGE.EITHER = 2
+    EDGE.FALLING = 1
+    EDGE.RISING = 0
     . .
 
     errnum: <0
 
     . .
-    PI_BAD_USER_GPIO = -2
-    PI_BAD_GPIO = -3
-    PI_BAD_MODE = -4
-    PI_BAD_LEVEL = -5
-    PI_BAD_PUD = -6
-    PI_BAD_PULSEWIDTH = -7
-    PI_BAD_DUTYCYCLE = -8
-    PI_BAD_WDOG_TIMEOUT = -15
-    PI_BAD_DUTYRANGE = -21
-    PI_NO_HANDLE = -24
-    PI_BAD_HANDLE = -25
-    PI_BAD_WAVE_BAUD = -35
-    PI_TOO_MANY_PULSES = -36
-    PI_TOO_MANY_CHARS = -37
-    PI_NOT_SERIAL_GPIO = -38
-    PI_NOT_PERMITTED = -41
-    PI_SOME_PERMITTED = -42
-    PI_BAD_WVSC_COMMND = -43
-    PI_BAD_WVSM_COMMND = -44
-    PI_BAD_WVSP_COMMND = -45
-    PI_BAD_PULSELEN = -46
-    PI_BAD_SCRIPT = -47
-    PI_BAD_SCRIPT_ID = -48
-    PI_BAD_SER_OFFSET = -49
-    PI_GPIO_IN_USE = -50
-    PI_BAD_SERIAL_COUNT = -51
-    PI_BAD_PARAM_NUM = -52
-    PI_DUP_TAG = -53
-    PI_TOO_MANY_TAGS = -54
-    PI_BAD_SCRIPT_CMD = -55
-    PI_BAD_VAR_NUM = -56
-    PI_NO_SCRIPT_ROOM = -57
-    PI_NO_MEMORY = -58
-    PI_SOCK_READ_FAILED = -59
-    PI_SOCK_WRIT_FAILED = -60
-    PI_TOO_MANY_PARAM = -61
-    PI_SCRIPT_NOT_READY = -62
-    PI_BAD_TAG = -63
-    PI_BAD_MICS_DELAY = -64
-    PI_BAD_MILS_DELAY = -65
-    PI_BAD_WAVE_ID = -66
-    PI_TOO_MANY_CBS = -67
-    PI_TOO_MANY_OOL = -68
-    PI_EMPTY_WAVEFORM = -69
-    PI_NO_WAVEFORM_ID = -70
-    PI_I2C_OPEN_FAILED = -71
-    PI_SER_OPEN_FAILED = -72
-    PI_SPI_OPEN_FAILED = -73
-    PI_BAD_I2C_BUS = -74
-    PI_BAD_I2C_ADDR = -75
-    PI_BAD_SPI_CHANNEL = -76
-    PI_BAD_FLAGS = -77
-    PI_BAD_SPI_SPEED = -78
-    PI_BAD_SER_DEVICE = -79
-    PI_BAD_SER_SPEED = -80
-    PI_BAD_PARAM = -81
-    PI_I2C_WRITE_FAILED = -82
-    PI_I2C_READ_FAILED = -83
-    PI_BAD_SPI_COUNT = -84
-    PI_SER_WRITE_FAILED = -85
-    PI_SER_READ_FAILED = -86
-    PI_SER_READ_NO_DATA = -87
-    PI_UNKNOWN_COMMAND = -88
-    PI_SPI_XFER_FAILED = -89
-    PI_NO_AUX_SPI = -91
-    PI_NOT_PWM_GPIO = -92
-    PI_NOT_SERVO_GPIO = -93
-    PI_NOT_HCLK_GPIO = -94
-    PI_NOT_HPWM_GPIO = -95
-    PI_BAD_HPWM_FREQ = -96
-    PI_BAD_HPWM_DUTY = -97
-    PI_BAD_HCLK_FREQ = -98
-    PI_BAD_HCLK_PASS = -99
-    PI_HPWM_ILLEGAL = -100
-    PI_BAD_DATABITS = -101
-    PI_BAD_STOPBITS = -102
-    PI_MSG_TOOBIG = -103
-    PI_BAD_MALLOC_MODE = -104
-    PI_BAD_SMBUS_CMD = -107
-    PI_NOT_I2C_GPIO = -108
-    PI_BAD_I2C_WLEN = -109
-    PI_BAD_I2C_RLEN = -110
-    PI_BAD_I2C_CMD = -111
-    PI_BAD_I2C_BAUD = -112
-    PI_CHAIN_LOOP_CNT = -113
-    PI_BAD_CHAIN_LOOP = -114
-    PI_CHAIN_COUNTER = -115
-    PI_BAD_CHAIN_CMD = -116
-    PI_BAD_CHAIN_DELAY = -117
-    PI_CHAIN_NESTING = -118
-    PI_CHAIN_TOO_BIG = -119
-    PI_DEPRECATED = -120
-    PI_BAD_SER_INVERT = -121
-    PI_BAD_FOREVER = -124
-    PI_BAD_FILTER = -125
-    PI_BAD_PAD = -126
-    PI_BAD_STRENGTH = -127
+    ERR.BAD_USER_GPIO = -2
+    ERR.BAD_GPIO = -3
+    ERR.BAD_MODE = -4
+    ERR.BAD_LEVEL = -5
+    ERR.BAD_PUD = -6
+    ERR.BAD_PULSEWIDTH = -7
+    ERR.BAD_DUTYCYCLE = -8
+    ERR.BAD_WDOG_TIMEOUT = -15
+    ERR.BAD_DUTYRANGE = -21
+    ERR.NO_.HANDLE = -24
+    ERR.BAD_HANDLE = -25
+    ERR.BAD_WAVE_BAUD = -35
+    ERR.TOO_MANY_PULSES = -36
+    ERR.TOO_MANY_CHARS = -37
+    ERR.NOT_SERIAL_GPIO = -38
+    ERR.NOT_PERMITTED = -41
+    ERR.SOME_PERMITTED = -42
+    ERR.BAD_WVSC_COMMND = -43
+    ERR.BAD_WVSM_COMMND = -44
+    ERR.BAD_WVSP_COMMND = -45
+    ERR.BAD_PULSELEN = -46
+    ERR.BAD_SCRIPT = -47
+    ERR.BAD_SCRIPT_ID = -48
+    ERR.BAD_SER_OFFSET = -49
+    ERR.GPIO_IN_USE = -50
+    ERR.BAD_SERIAL_COUNT = -51
+    ERR.BAD_PARAM_NUM = -52
+    ERR.DUP_TAG = -53
+    ERR.TOO_MANY_TAGS = -54
+    ERR.BAD_SCRIPT_CMD = -55
+    ERR.BAD_VAR_NUM = -56
+    ERR.NO_.SCRIPT_ROOM = -57
+    ERR.NO_.MEMORY = -58
+    ERR.SOCK_READ_FAILED = -59
+    ERR.SOCK_WRIT_FAILED = -60
+    ERR.TOO_MANY_PARAM = -61
+    ERR.SCRIPT_NOT_READY = -62
+    ERR.BAD_TAG = -63
+    ERR.BAD_MICS_DELAY = -64
+    ERR.BAD_MILS_DELAY = -65
+    ERR.BAD_WAVE_ID = -66
+    ERR.TOO_MANY_CBS = -67
+    ERR.TOO_MANY_OOL = -68
+    ERR.EMPTY_WAVEFORM = -69
+    ERR.NO_.WAVEFORM_ID = -70
+    ERR.I2C_OPEN_FAILED = -71
+    ERR.SER_OPEN_FAILED = -72
+    ERR.SPI_OPEN_FAILED = -73
+    ERR.BAD_I2C_BUS = -74
+    ERR.BAD_I2C_ADDR = -75
+    ERR.BAD_SPI_CHANNEL = -76
+    ERR.BAD_FLAGS = -77
+    ERR.BAD_SPI_SPEED = -78
+    ERR.BAD_SER_DEVICE = -79
+    ERR.BAD_SER_SPEED = -80
+    ERR.BAD_PARAM = -81
+    ERR.I2C_WRITE_FAILED = -82
+    ERR.I2C_READ_FAILED = -83
+    ERR.BAD_SPI_COUNT = -84
+    ERR.SER_WRITE_FAILED = -85
+    ERR.SER_READ_FAILED = -86
+    ERR.SER_READ_NO_DATA = -87
+    ERR.UNKNOWN_COMMAND = -88
+    ERR.SPI_XFER_FAILED = -89
+    ERR.NO_.AUX_SPI = -91
+    ERR.NOT_PWM_GPIO = -92
+    ERR.NOT_SERVO_GPIO = -93
+    ERR.NOT_HCLK_GPIO = -94
+    ERR.NOT_HPWM_GPIO = -95
+    ERR.BAD_HPWM_FREQ = -96
+    ERR.BAD_HPWM_DUTY = -97
+    ERR.BAD_HCLK_FREQ = -98
+    ERR.BAD_HCLK_PASS = -99
+    ERR.HPWM_ILLEGAL = -100
+    ERR.BAD_DATABITS = -101
+    ERR.BAD_STOPBITS = -102
+    ERR.MSG_TOOBIG = -103
+    ERR.BAD_MALLOC_MODE = -104
+    ERR.BAD_SMBUS_CMD = -107
+    ERR.NOT_I2C_GPIO = -108
+    ERR.BAD_I2C_WLEN = -109
+    ERR.BAD_I2C_RLEN = -110
+    ERR.BAD_I2C_CMD = -111
+    ERR.BAD_I2C_BAUD = -112
+    ERR.CHAIN_LOOP_CNT = -113
+    ERR.BAD_CHAIN_LOOP = -114
+    ERR.CHAIN_COUNTER = -115
+    ERR.BAD_CHAIN_CMD = -116
+    ERR.BAD_CHAIN_DELAY = -117
+    ERR.CHAIN_NESTING = -118
+    ERR.CHAIN_TOO_BIG = -119
+    ERR.DEPRECATED = -120
+    ERR.BAD_SER_INVERT = -121
+    ERR.BAD_FOREVER = -124
+    ERR.BAD_FILTER = -125
+    ERR.BAD_PAD = -126
+    ERR.BAD_STRENGTH = -127
     PI_FIL_OPEN_FAILED = -128
-    PI_BAD_FILE_MODE = -129
-    PI_BAD_FILE_FLAG = -130
-    PI_BAD_FILE_READ = -131
-    PI_BAD_FILE_WRITE = -132
-    PI_FILE_NOT_ROPEN = -133
-    PI_FILE_NOT_WOPEN = -134
-    PI_BAD_FILE_SEEK = -135
-    PI_NO_FILE_MATCH = -136
-    PI_NO_FILE_ACCESS = -137
-    PI_FILE_IS_A_DIR = -138
-    PI_BAD_SHELL_STATUS = -139
-    PI_BAD_SCRIPT_NAME = -140
-    PI_BAD_SPI_BAUD = -141
-    PI_NOT_SPI_GPIO = -142
-    PI_BAD_EVENT_ID = -143
-    PI_CMD_INTERRUPTED = -144
-    PI_NOT_ON_BCM2711   = -145
+    ERR.BAD_FILE_MODE = -129
+    ERR.BAD_FILE_FLAG = -130
+    ERR.BAD_FILE_READ = -131
+    ERR.BAD_FILE_WRITE = -132
+    ERR.FILE_NOT_ROPEN = -133
+    ERR.FILE_NOT_WOPEN = -134
+    ERR.BAD_FILE_SEEK = -135
+    ERR.NO_.FILE_MATCH = -136
+    ERR.NO_.FILE_ACCESS = -137
+    ERR.FILE_IS_A_DIR = -138
+    ERR.BAD_SHELL_STATUS = -139
+    ERR.BAD_SCRIPT_NAME = -140
+    ERR.BAD_SPI_BAUD = -141
+    ERR.NOT_SPI_GPIO = -142
+    ERR.BAD_EVENT_ID = -143
+    ERR.CMD_INTERRUPTED = -144
+    ERR.NOT_ON_BCM2711   = -145
     PI_ONLY_ON_BCM2711  = -146
     . .
 
@@ -5518,17 +5529,17 @@ def xref():
     The mode may have the following values
 
     . .
-    FILE_READ   1
-    FILE_WRITE  2
-    FILE_RW     3
+    FILE.READ   1
+    FILE.WRITE  2
+    FILE.RW     3
     . .
 
     The following values can be or'd into the file open mode
 
     . .
-    FILE_APPEND 4
-    FILE_CREATE 8
-    FILE_TRUNC  16
+    FILE.APPEND 4
+    FILE.CREATE 8
+    FILE.TRUNC  16
     . .
 
     file_name:
@@ -5629,26 +5640,15 @@ def xref():
 
     mode:
 
-    1.The operational mode of a GPIO, normally INPUT or OUTPUT.
-
-    . .
-    ALT0 = 4
-    ALT1 = 5
-    ALT2 = 6
-    ALT3 = 7
-    ALT4 = 3
-    ALT5 = 2
-    INPUT = 0
-    OUTPUT = 1
-    . .
+    1.The operational mode of a GPIO, normally MODE.INPUT or MODE.OUTPUT.
 
     2. The mode of waveform transmission.
 
     . .
-    WAVE_MODE_ONE_SHOT = 0
-    WAVE_MODE_REPEAT = 1
-    WAVE_MODE_ONE_SHOT_SYNC = 2
-    WAVE_MODE_REPEAT_SYNC = 3
+    WAVE_MODE.ONE_SHOT = 0
+    WAVE_MODE.REPEAT = 1
+    WAVE_MODE.ONE_SHOT_SYNC = 2
+    WAVE_MODE.REPEAT_SYNC = 3
     . .
 
     MOSI:
@@ -5685,9 +5685,9 @@ def xref():
 
     pud: 0-2
     . .
-    PUD_DOWN = 1
-    PUD_OFF = 0
-    PUD_UP = 2
+    PUD.DOWN = 1
+    PUD.OFF = 0
+    PUD.UP = 2
     . .
 
     pulse_len: 1-100
@@ -5738,9 +5738,9 @@ def xref():
     Direction to seek for [*file_seek*].
 
     . .
-    FROM_START=0
-    FROM_CURRENT=1
-    FROM_END=2
+    FILE.FROM_START=0
+    FILE.FROM_CURRENT=1
+    FILE.FROM_END=2
     . .
 
     seek_offset:
