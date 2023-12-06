@@ -1058,9 +1058,10 @@ def tickDiff(t1, t2):
 # 3 != 2.7.8 != 2.7.3
 
 def _b(x):
-    return x.encode('utf-8')
-
-def _str(x):
+    if isinstance(x,str):
+        return x.encode('utf-8')
+    if isinstance(x,(tuple,list)):
+        return bytes(x)
     return x
 
 def u2i(uint32):
@@ -4310,7 +4311,7 @@ class pi():
         """
         bytes, data = self.sl.command_rx(_PI_CMD.PROCP, script_id)
         if data:
-            pars = struct.unpack('11i', _str(data))
+            pars = struct.unpack('11i', data)
             status = pars[0]
             params = pars[1:]
         else:
